@@ -1,6 +1,5 @@
 package com.interpret;
 
-import java.util.List;
 import java.util.Scanner;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -8,8 +7,11 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import com.actions.JavaAction;
+import com.actions.JavaField;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
+import com.interpret.listener.JavaInterpreterBaseListener;
+import com.javasource.InterpreterSuperClass;
 /**
  * Class that is the main class to invoke when running the java interpreter.
  * 
@@ -59,20 +61,47 @@ public class JavaInterpreter {
         	// Now use the parser
         	Java8Parser parser = new Java8Parser(tokenStream);
         	
+        	// Make the parser and lexer be quiet.
+        	parser.removeErrorListeners();
+        	java8Lexer.removeErrorListeners();
+        	
         	// Walk the tree.
         	ParseTreeWalker walker = new ParseTreeWalker();
         	
-        	// Create the listener, but be sure we pass along the raw input to it.
-        	JavaInterpreterListener listener = new JavaInterpreterListener(nextInput);
+        	// The listener.
+        	JavaInterpreterBaseListener listener = new JavaInterpreterBaseListener(nextInput);
         	
-        	// PARSE!
+        	// Walk it!
         	walker.walk(listener, parser.compilationUnit());
         	
         	// Get what the result was.
-        	List<JavaAction> createdActions = listener.getJavaAction();
-        	
-        	// Compile it!
-        	JavaInterpreterCompiler.getInstance().compile(createdActions);
+        	compileAndEvaluateJavaAction(listener.getJavaAction());
         }
+	}
+	
+	/**
+	 * Method to compile the action and evaluate what happened with it.
+	 * 
+	 * @param createdAction
+	 * @throws Exception
+	 */
+	private void compileAndEvaluateJavaAction(JavaAction createdAction) throws Exception {
+		
+		// Compile it, we'll get the new version of the InterpreterSuperClass by doing this, with updated methods and values.
+    	InterpreterSuperClass superClass = JavaInterpreterCompiler.getInstance().compile(createdAction);
+    	
+    	// If it's a java field, call it!
+    	if(createdAction instanceof JavaField) {
+    		
+    		// Try to call the field.
+    		try {
+    			System.out.println(superClass.callField(((JavaField)createdAction).getFieldName()));
+    		}
+    		
+    		// Ignore this one, since it'll die in the compilation.
+    		catch(NoSuchFieldException e) {
+    			
+    		}
+    	}
 	}
 }

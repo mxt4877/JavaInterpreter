@@ -1,5 +1,9 @@
 package com.interpret;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Collections;
 import java.util.List;
 
@@ -8,7 +12,8 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 
 import com.actions.JavaAction;
-import com.source.JavaStringSource;
+import com.javasource.InterpreterSuperClass;
+import com.javasource.JavaStringSource;
 
 /**
  * Class to handle the compilation and the putting of newly (syntactically correct) variables into the proper maps.
@@ -47,22 +52,29 @@ public class JavaInterpreterCompiler {
 	 * Method to compile the new action(s)!
 	 * 
 	 * @param newActions -- the newly created action(s).
+	 * @throws MalformedURLException 
+	 * @throws ClassNotFoundException 
+	 * @throws IllegalAccessException 
+	 * @throws InstantiationException 
 	 */
-	public void compile(List<JavaAction> newActions) {
+	public InterpreterSuperClass compile(JavaAction newAction) throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
 		// We'll only have one or more actions in the event we are declaring 2 fields at once. In this instance, we only need to generate the pre-requsite code once too.
-		String classTextToCompile = generateStringFromActions(newActions.get(0));
+		String classTextToCompile = generateStringFromActions(newAction);
 		
 		// Generate the source from this class text.
-		JavaStringSource source = new JavaStringSource(classTextToCompile);
+		JavaStringSource source = InterpreterSuperClass.generateClass(classTextToCompile);
 		
 		// Get the task from the compiler.
 		CompilationTask task = COMPILER.getTask(null, null, null, null, null, Collections.singletonList(source));
 		
 		// Call the compiler, and if it works, put it into the maps!
 		if(task.call()) {
-			JavaInterpreterMaps.getInstance().addFields(newActions);
+			JavaInterpreterMaps.getInstance().addField(newAction);
 		}
+		
+		URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(".").toURI().toURL()}, this.getClass().getClassLoader());
+		return (InterpreterSuperClass) classLoader.loadClass("CompileClass").newInstance();
 	}
 
 	/**

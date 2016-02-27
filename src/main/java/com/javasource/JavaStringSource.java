@@ -1,4 +1,4 @@
-package com.source;
+package com.javasource;
 
 import java.net.URI;
 
@@ -29,7 +29,7 @@ public class JavaStringSource extends SimpleJavaFileObject {
         super(URI.create("string:///CompileClass" + Kind.SOURCE.extension), Kind.SOURCE);
         
         // Set the code... to the code, wrapped by a class declaration.
-        this.code = "public class CompileClass { " + code + "\n}";
+        this.code = code;
     }
 
     @Override

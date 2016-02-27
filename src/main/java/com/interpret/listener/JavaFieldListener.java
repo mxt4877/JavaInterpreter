@@ -1,8 +1,6 @@
-package com.interpret;
+package com.interpret.listener;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.actions.JavaAction;
@@ -10,24 +8,31 @@ import com.actions.JavaField;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Listener;
 import com.antlr.Java8Parser.ExpressionNameContext;
+import com.antlr.Java8Parser.FieldModifierContext;
 import com.antlr.Java8Parser.VariableDeclaratorContext;
+import com.interpret.JavaInterpreterMaps;
 
 /**
  * Class that extends {@link Java8Listener} and parses and understands input as defined by the Java8 grammar.
  *
  * @author <a href="mailto:mxt4877@rit.edu">Mike Thomsen</a>
  */
-public class JavaInterpreterListener extends Java8BaseListener {
+public class JavaFieldListener extends Java8BaseListener {
 
 	/**
 	 * The actual input.
 	 */
 	private String rawInput;
+	
+	/**
+	 * The modifier.
+	 */
+	private String modifier;
 
 	/**
-	 * The list of field names.
+	 * The field name.
 	 */
-	private List<String> fieldNames = new ArrayList<String>();
+	private String fieldName;
 	
 	/**
 	 * The list of dependent actions we determined from parsing.
@@ -39,7 +44,7 @@ public class JavaInterpreterListener extends Java8BaseListener {
 	 * 
 	 * @param rawInput -- directly what the user entered.
 	 */
-	public JavaInterpreterListener(String rawInput) {
+	public JavaFieldListener(String rawInput) {
 		this.rawInput = rawInput;
 	}
 
@@ -48,19 +53,21 @@ public class JavaInterpreterListener extends Java8BaseListener {
 	 * 
 	 * @return List of {@link JavaAction}.
 	 */
-	public List<JavaAction> getJavaAction() {
-
-		// Create the list.
-		List<JavaAction> javaActions = new ArrayList<JavaAction>();
-
-		// For the list of field names we gathered... add a new field.
-		for(String fieldName : fieldNames) {			
-			javaActions.add(new JavaField(rawInput, fieldName, dependentActions));
+	public JavaAction getJavaAction() {
+		
+		// If the modifier isn't there, add public to it.
+		if(this.modifier == null) {
+			rawInput = "public " + rawInput;
+		}
+		
+		// Otherwise, replace the modifier with public.
+		else if(!this.modifier.equalsIgnoreCase("public")) {
+			rawInput = rawInput.replace(this.modifier, "public");
 		}
 
 		// Return this list.
-		return javaActions;
-	}
+		return new JavaField(rawInput, fieldName, dependentActions);
+	}	
 
 	@Override
 	public void enterExpressionName(ExpressionNameContext ctx) {
@@ -79,6 +86,11 @@ public class JavaInterpreterListener extends Java8BaseListener {
 
 	@Override
 	public void enterVariableDeclarator(VariableDeclaratorContext ctx) { 
-		fieldNames.add(ctx.variableDeclaratorId().Identifier().getText());
+		fieldName = ctx.variableDeclaratorId().Identifier().getText();
+	}
+	
+	@Override
+	public void enterFieldModifier(FieldModifierContext ctx) {
+		this.modifier = ctx.getText();
 	}
 }

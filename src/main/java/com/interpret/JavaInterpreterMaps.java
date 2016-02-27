@@ -1,7 +1,6 @@
 package com.interpret;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import com.actions.JavaAction;
@@ -45,8 +44,13 @@ public class JavaInterpreterMaps {
 	 * 
 	 * @param newField -- the field.
 	 */
-	public void addField(JavaField newField) {
-		fields.put(newField.getFieldName(), newField);
+	public void addField(JavaAction newField) {
+		
+		// Cast the field.
+		JavaField castField = (JavaField) newField;
+		
+		// Now put it back.
+		fields.put(castField.getFieldName(), castField);
 	}
 	
 	/**
@@ -57,16 +61,5 @@ public class JavaInterpreterMaps {
 	 */
 	public JavaField getFieldFromName(String fieldName) {
 		return fields.containsKey(fieldName) ? fields.get(fieldName) : null;
-	}
-
-	/**
-	 * Method to add multiple fields, uses {@link #addField(JavaField)} internally.
-	 * 
-	 * @param newActions -- the fields.
-	 */
-	public void addFields(List<JavaAction> newActions) {
-		for(JavaAction newAction : newActions) {
-			addField((JavaField) newAction);
-		}
 	}
 }
