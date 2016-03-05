@@ -1,7 +1,5 @@
 package com.actions;
 
-import java.util.Set;
-
 /**
  * Class that extends {@link JavaAction}, representing a Java field.
  *
@@ -21,15 +19,15 @@ public class JavaField extends JavaAction {
 	 * @param fieldName -- the field name.
 	 * @param dependentActions -- the actions that are needed to be resolved to make this field work.
 	 */
-	public JavaField(String rawInput, String fieldName, Set<JavaAction> dependentActions) {
-		super(dependentActions, rawInput);
+	public JavaField(String rawInput, String fieldName) {
+		super(rawInput, ActionType.FIELD);
 		
 		// Set the field name!
 		this.fieldName = fieldName;
 	}
 
 	/**
-	 * Getter.
+	 * Getter for the field name.
 	 * 
 	 * @return String -- the field name.
 	 */

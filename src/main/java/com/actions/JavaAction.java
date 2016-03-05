@@ -16,21 +16,34 @@ public abstract class JavaAction {
 	protected Set<JavaAction> dependentActions = new HashSet<JavaAction>();
 	
 	/**
+	 * The action type.
+	 */
+	protected ActionType actionType;
+	
+	/**
 	 * The raw input.
 	 */
 	private String rawInput;
 	
 	/**
-	 * Protected constructor to send in the dependent actions and the raw input.
+	 * Protected constructor to send in the raw input.
 	 * 
-	 * @param dependentActions
-	 * @param rawInput
+	 * @param rawInput -- the raw input of the user. 
 	 */
-	protected JavaAction(Set<JavaAction> dependentActions, String rawInput) {
-		this.dependentActions = dependentActions;
+	protected JavaAction(String rawInput, ActionType actionType) {
 		this.rawInput = rawInput;
+		this.actionType = actionType;
 	}
 	
+	/**
+	 * Method that will set the dependent actions.
+	 * 
+	 * @param dependentActions -- set the dependent actions here.
+	 */
+	public void setDependentActions(Set<JavaAction> dependentActions) {
+		this.dependentActions = dependentActions;
+	}
+
 	/**
 	 * Getter for the dependent actions.
 	 * 
@@ -47,5 +60,14 @@ public abstract class JavaAction {
 	 */
 	public String getRawInput() {
 		return this.rawInput;
+	}
+
+	/**
+	 * Getter for the action type.
+	 * 
+	 * @return {@link ActionType} -- the action type.
+	 */
+	public ActionType getActionType() {
+		return actionType;
 	}
 }

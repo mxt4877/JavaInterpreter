@@ -70,7 +70,7 @@ public class JavaInterpreterCompiler {
 		
 		// Call the compiler, and if it works, put it into the maps!
 		if(task.call()) {
-			JavaInterpreterMaps.getInstance().addField(newAction);
+			JavaInterpreterMaps.getInstance().putEntry(newAction);
 		}
 		
 		URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(".").toURI().toURL()}, this.getClass().getClassLoader());

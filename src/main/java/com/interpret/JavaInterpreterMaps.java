@@ -3,6 +3,7 @@ package com.interpret;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.actions.ActionType;
 import com.actions.JavaAction;
 import com.actions.JavaField;
 
@@ -11,7 +12,7 @@ import com.actions.JavaField;
  *
  * @author <a href="mailto:mxt4877@rit.edu">Mike Thomsen</a>
  */
-public class JavaInterpreterMaps {	
+public class JavaInterpreterMaps {
 	
 	/**
 	 * Map of variables.
@@ -40,26 +41,82 @@ public class JavaInterpreterMaps {
 	}
 	
 	/**
-	 * Method to add a field.
+	 * Method to put a {@link JavaAction} into a proper map based on the action type.
 	 * 
-	 * @param newField -- the field.
+	 * @param javaAction -- the action type.
 	 */
-	public void addField(JavaAction newField) {
+	public void putEntry(JavaAction javaAction) {
 		
-		// Cast the field.
-		JavaField castField = (JavaField) newField;
-		
-		// Now put it back.
-		fields.put(castField.getFieldName(), castField);
+		// Switch on the entry type to know what to do with it.
+		switch(javaAction.getActionType()) {
+			
+			// Get the field.
+			case FIELD: {
+				
+				// Cast the field.
+				JavaField castField = (JavaField) javaAction;
+				
+				// Now put it back.
+				fields.put(castField.getFieldName(), castField);
+			}
+			
+			// Get the method.
+			case METHOD: {
+				;
+			}
+			
+			default: {
+				;
+			}
+		}
 	}
 	
 	/**
-	 * Method to retrieve a field based on its name.
+	 * Method to retrieve an entry based on it's name and type.
 	 * 
-	 * @param fieldName -- the name.
-	 * @return JavaField -- the field that corresponds to this name. NULL if it does not exist.
+	 * @param entryName -- the name of the identifier.
+	 * @param entryType -- the type of the identifer.
+	 * @return {@link JavaField} -- the field.
 	 */
-	public JavaField getFieldFromName(String fieldName) {
-		return fields.containsKey(fieldName) ? fields.get(fieldName) : null;
+	public JavaField getEntry(String entryName, ActionType entryType) {
+		
+		// Switch on the entry type to know what to return.
+		switch(entryType) {
+			
+			// Get the field.
+			case FIELD: {
+				return fields.containsKey(entryName) ? fields.get(entryName) : null;
+			}
+			
+			// Return the method.
+			case METHOD: {
+				return null;
+			}
+			
+			default: {
+				return null;
+			}
+		}
+	}
+	
+	public boolean containsEntry(String entryName, ActionType entryType) {
+		
+		// Switch on the entry type to know what to return.
+		switch(entryType) {
+			
+			// Get the field.
+			case FIELD: {
+				return fields.containsKey(entryName);
+			}
+			
+			// Return the method.
+			case METHOD: {
+				return false;
+			}
+			
+			default: {
+				return false;
+			}
+		}
 	}
 }
