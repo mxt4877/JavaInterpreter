@@ -6,6 +6,7 @@ import java.util.Map;
 import com.actions.ActionType;
 import com.actions.JavaAction;
 import com.actions.JavaField;
+import com.actions.JavaMethod;
 
 /**
  * Class to house all of the varying maps that will contain fields, classes, methods, etc.
@@ -18,6 +19,11 @@ public class JavaInterpreterMaps {
 	 * Map of variables.
 	 */
 	private Map<String, JavaField> fields = new HashMap<String, JavaField>();
+	
+	/**
+	 * Map of methods.
+	 */
+	private Map<String, JavaMethod> methods = new HashMap<String, JavaMethod>();
 	
 	/**
 	 * Singleton instance.
@@ -58,15 +64,24 @@ public class JavaInterpreterMaps {
 				
 				// Now put it back.
 				fields.put(castField.getFieldName(), castField);
+				
+				break;
 			}
 			
 			// Get the method.
 			case METHOD: {
-				;
+				
+				// Cast the method.
+				JavaMethod castMethod = (JavaMethod) javaAction;
+				
+				// Now put it back.
+				methods.put(castMethod.getMethodName(), castMethod);
+				
+				break;
 			}
 			
 			default: {
-				;
+				break;
 			}
 		}
 	}
@@ -78,7 +93,7 @@ public class JavaInterpreterMaps {
 	 * @param entryType -- the type of the identifer.
 	 * @return {@link JavaField} -- the field.
 	 */
-	public JavaField getEntry(String entryName, ActionType entryType) {
+	public JavaAction getEntry(String entryName, ActionType entryType) {
 		
 		// Switch on the entry type to know what to return.
 		switch(entryType) {
@@ -90,7 +105,7 @@ public class JavaInterpreterMaps {
 			
 			// Return the method.
 			case METHOD: {
-				return null;
+				return methods.containsKey(entryName) ? methods.get(entryName) : null;
 			}
 			
 			default: {
@@ -99,6 +114,13 @@ public class JavaInterpreterMaps {
 		}
 	}
 	
+	/**
+	 * Method to check the given map for the entry type and the name.
+	 * 
+	 * @param entryName -- the name of the entry (field, method, etc.)
+	 * @param entryType -- the java action type.
+	 * @return TRUE if the map contains the name, FALSE if not.
+	 */
 	public boolean containsEntry(String entryName, ActionType entryType) {
 		
 		// Switch on the entry type to know what to return.
@@ -111,7 +133,7 @@ public class JavaInterpreterMaps {
 			
 			// Return the method.
 			case METHOD: {
-				return false;
+				return methods.containsKey(entryName);
 			}
 			
 			default: {

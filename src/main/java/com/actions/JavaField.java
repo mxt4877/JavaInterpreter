@@ -17,7 +17,6 @@ public class JavaField extends JavaAction {
 	 * 
 	 * @param rawInput -- the input.
 	 * @param fieldName -- the field name.
-	 * @param dependentActions -- the actions that are needed to be resolved to make this field work.
 	 */
 	public JavaField(String rawInput, String fieldName) {
 		super(rawInput, ActionType.FIELD);

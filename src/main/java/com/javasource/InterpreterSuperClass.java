@@ -30,7 +30,11 @@ public abstract class InterpreterSuperClass {
 	/**
 	 * String that represents the import declaration.
 	 */
-	private static final String IMPORT_DECLARATION = "import com.javasource.InterpreterSuperClass;\n\n\n";
+	private static final String IMPORT_DECLARATION = "import com.javasource.InterpreterSuperClass; \n" +
+													 "import java.util.*; \n" +
+													 "import java.math.*; \n" +
+													 "import java.io.*; \n" +
+													 "\n\n\n";
 	
 	/**
 	 * String that represents the declaration prefix of a class that extends this one.

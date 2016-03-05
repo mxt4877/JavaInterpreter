@@ -3,12 +3,11 @@ package com.interpret.listener;
 import com.actions.JavaAction;
 import com.actions.JavaField;
 import com.antlr.Java8BaseListener;
-import com.antlr.Java8Listener;
 import com.antlr.Java8Parser.FieldModifierContext;
 import com.antlr.Java8Parser.VariableDeclaratorContext;
 
 /**
- * Class that extends {@link Java8Listener} and parses and understands input as defined by the Java8 grammar.
+ * Class that extends {@link Java8BaseListener} and parses and understands input as defined by the Java8 grammar.
  *
  * @author <a href="mailto:mxt4877@rit.edu">Mike Thomsen</a>
  */

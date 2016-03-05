@@ -1,7 +1,4 @@
 /bin/
-
 /.git/
-
 /.settings/
-
-/CompileClass.class
+/*.class

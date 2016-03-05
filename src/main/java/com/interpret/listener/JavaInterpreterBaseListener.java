@@ -3,6 +3,7 @@ package com.interpret.listener;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -75,14 +76,32 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	}
 	
 	@Override
-	public void enterStatementExpression(StatementExpressionContext statementContext) {
-		System.out.println(findIdentifiers(statementContext));
-		System.out.println("Got an statement expression context...");
+	public void enterMethodDeclaration(MethodDeclarationContext methodDeclarationContext) {
+		
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(methodDeclarationContext));
+		
+		// Go walk this specifically.
+		Java8Parser newParser = getNewParser();
+		
+		// Pass through the raw input to the field listener.
+		JavaMethodListener listener = new JavaMethodListener(rawInput);
+		
+		// Get the walker and walk with the new listener.
+		ParseTreeWalker walker = new ParseTreeWalker();
+		walker.walk(listener, newParser.methodDeclaration());
+		
+		// Set the new action.
+		this.newAction = listener.getJavaAction();
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
 	}
 	
 	@Override
-	public void enterMethodDeclaration(MethodDeclarationContext methodDeclarationContext) {
-		System.out.println(findIdentifiers(methodDeclarationContext));
+	public void enterStatementExpression(StatementExpressionContext statementContext) {
+		System.out.println(findIdentifiers(statementContext));
+		System.out.println("Got an statement expression context...");
 	}
 	
 	@Override
@@ -104,7 +123,7 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	 * actually have the "Identifier" method on them, and store their text in a list to be returned.
 	 * 
 	 * @param parseContext -- the parse tree.
-	 * @return 
+	 * @return Set -- a string list of the identifiers (in order they were referenced).
 	 */
 	private Set<String> findIdentifiers(ParserRuleContext parseContext) {
 		
@@ -124,7 +143,16 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 				
 				// Invoke the method. We really should not have issues, but put them to the console if we do.
 				try {
-					node = (TerminalNode) identifierMethod.invoke(aTree, null);
+					if(identifierMethod.getReturnType().equals(List.class)) {
+						List<TerminalNode> listOfNodes = (List<TerminalNode>) identifierMethod.invoke(aTree, null);
+						
+						// We seem to only ever have one in here, so just grab it.
+						node = listOfNodes.get(0);
+					}
+					
+					else {
+						node = (TerminalNode) identifierMethod.invoke(aTree, null);
+					}
 				} 
 				
 				// Catch various exceptions here and re-throw the error.
@@ -133,7 +161,9 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 				}
 				
 				// If we made it here, we have a method for identifiers.
-				identifiers.add(node.getText());
+				if(node != null) {
+					identifiers.add(node.getText());
+				}
 			}
 				
 			// No method? Keep going.

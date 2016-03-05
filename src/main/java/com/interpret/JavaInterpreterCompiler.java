@@ -5,6 +5,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import javax.tools.JavaCompiler;
@@ -51,7 +52,7 @@ public class JavaInterpreterCompiler {
 	/**
 	 * Method to compile the new action(s)!
 	 * 
-	 * @param newActions -- the newly created action(s).
+	 * @param InterpreterSuperClass -- the newly created class with the actions baked in.
 	 * @throws MalformedURLException 
 	 * @throws ClassNotFoundException 
 	 * @throws IllegalAccessException 
@@ -60,7 +61,7 @@ public class JavaInterpreterCompiler {
 	public InterpreterSuperClass compile(JavaAction newAction) throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
 		// We'll only have one or more actions in the event we are declaring 2 fields at once. In this instance, we only need to generate the pre-requsite code once too.
-		String classTextToCompile = generateStringFromActions(newAction);
+		String classTextToCompile = generateStringFromActions(newAction, new LinkedList<JavaAction>());
 		
 		// Generate the source from this class text.
 		JavaStringSource source = InterpreterSuperClass.generateClass(classTextToCompile);
@@ -73,7 +74,10 @@ public class JavaInterpreterCompiler {
 			JavaInterpreterMaps.getInstance().putEntry(newAction);
 		}
 		
+		// Load up the class again with this class loader.
 		URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(".").toURI().toURL()}, this.getClass().getClassLoader());
+		
+		// Return an instance of this class.
 		return (InterpreterSuperClass) classLoader.loadClass("CompileClass").newInstance();
 	}
 
@@ -83,12 +87,19 @@ public class JavaInterpreterCompiler {
 	 * @param dependentAction -- the dependent action to generate code from.
 	 * @return String -- the action code.
 	 */
-	private String generateStringFromActions(JavaAction dependentAction) {
+	private String generateStringFromActions(JavaAction dependentAction, List<JavaAction> alreadyProcessedDependents) {
 		StringBuilder rawDependentCode = new StringBuilder();
 		
 		// Recurse for any nested dependencies that may exist.
 		for(JavaAction nestedDependency : dependentAction.getDependentActions()) {
-			rawDependentCode.append(generateStringFromActions(nestedDependency));
+			
+			// Make sure we only do this once. Bypass any we might've already processed. This is the case where we may have a list like...
+			//		add(t1), add(t2), add(t3);
+			// In the case where t3 has a dependency on t1, we would have t1 declared and gathered twice, causing a compile error.
+			if(!alreadyProcessedDependents.contains(nestedDependency)) {
+				rawDependentCode.append(generateStringFromActions(nestedDependency, alreadyProcessedDependents));
+				alreadyProcessedDependents.add(nestedDependency);
+			}
 		}
 		
 		// Add this one in.
