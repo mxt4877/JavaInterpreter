@@ -112,9 +112,12 @@ public class JavaInterpreter {
     		// Evaluate a field.
 	    	case FIELD: {
 	    		
+	    		// Cast it.
+	    		JavaField createdField = (JavaField) createdAction;
+	    		
 	    		// Try to call the field.
 	    		try {
-	    			System.out.println(superClass.callField(((JavaField)createdAction).getFieldName()));
+	    			System.out.println(createdField.getFieldName() + " = " + superClass.callField(createdField.getFieldName()));
 	    		}
 	    		
 	    		// Ignore this one, since it'll die in the compilation.
