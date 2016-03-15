@@ -6,6 +6,7 @@ import com.actions.JavaIdentifier;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Parser.AssignmentContext;
 import com.antlr.Java8Parser.LeftHandSideContext;
+import com.antlr.Java8Parser.MethodInvocationContext;
 import com.antlr.Java8Parser.StatementExpressionContext;
 
 /**
@@ -49,13 +50,23 @@ public class JavaExpressionListener extends Java8BaseListener {
 	}
 	
 	@Override
+	public void enterMethodInvocation(MethodInvocationContext methodInvocationContext) {
+		this.expressionVariable = methodInvocationContext.methodName().Identifier().getText();
+		this.javaAction = new JavaIdentifier(rawInput);
+	}
+	
+	@Override
 	public void enterAssignment(AssignmentContext assignmentContext) {
+		
+		// Get the left hand side of the assignment.
 		LeftHandSideContext leftHandSide = assignmentContext.leftHandSide();
 		
+		// Grab the expression name off of the left hand side.
 		if(leftHandSide.expressionName() != null) {
 			expressionVariable = leftHandSide.expressionName().Identifier().getText();
 		}
 		
+		// Otherwise, try and set access on the array.
 		else if(leftHandSide.arrayAccess() != null) {
 			expressionVariable = leftHandSide.arrayAccess().expressionName().Identifier().getText();
 		}
