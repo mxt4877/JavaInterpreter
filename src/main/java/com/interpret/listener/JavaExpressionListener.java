@@ -82,5 +82,9 @@ public class JavaExpressionListener extends Java8BaseListener {
 		if(statementExpression.Identifier() != null) {
 			this.javaAction = new JavaIdentifier(this.rawInput);
 		}
+		
+		if(statementExpression.expression() != null) {
+			System.err.println("EXPRESSION!");
+		}
 	}
 }
