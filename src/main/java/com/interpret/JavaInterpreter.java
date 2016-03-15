@@ -117,7 +117,7 @@ public class JavaInterpreter {
 	    		
 	    		// Try to call the field.
 	    		try {
-	    			System.out.println(createdField.getFieldName() + " = " + superClass.callField(createdField.getFieldName()));
+	    			System.out.println(createdField.getFieldName() + " = " + superClass.evaluate());
 	    		}
 	    		
 	    		// Ignore this one, since it'll die in the compilation.
@@ -130,6 +130,13 @@ public class JavaInterpreter {
 	    	case METHOD: {
 	    		System.out.println(((JavaMethod)createdAction).getMethodName() + " successfully created. ");
 	    		
+	    		break;
+	    	}
+	    	
+	    	// Evaluate an identifier.
+	    	case EXPRESSION:
+	    	case IDENTIFIER: {
+	    		System.out.println(superClass.evaluate());
 	    		break;
 	    	}
     	}

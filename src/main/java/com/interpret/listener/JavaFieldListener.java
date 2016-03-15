@@ -44,16 +44,11 @@ public class JavaFieldListener extends Java8BaseListener {
 	 */
 	public JavaAction getJavaAction() {
 		
-		// If the modifier isn't there, add public to it.
-		if(this.modifier == null) {
-			rawInput = "public " + rawInput;
+		// If the modifier is there, remove it.
+		if(this.modifier != null) {
+			rawInput = rawInput.replaceAll(this.modifier, "");
 		}
 		
-		// Otherwise, replace the modifier with public.
-		else if(!this.modifier.equalsIgnoreCase("public")) {
-			rawInput = rawInput.replace(this.modifier, "public");
-		}
-
 		// Return this list.
 		return new JavaField(rawInput, fieldName);
 	}

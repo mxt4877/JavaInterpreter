@@ -1,10 +1,11 @@
 package com.interpret;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
+import com.actions.JavaExpression;
 import com.actions.JavaField;
 import com.actions.JavaMethod;
 
@@ -18,12 +19,17 @@ public class JavaInterpreterMaps {
 	/**
 	 * Map of variables.
 	 */
-	private Map<String, JavaField> fields = new HashMap<String, JavaField>();
+	private Map<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
 	
 	/**
 	 * Map of methods.
 	 */
-	private Map<String, JavaMethod> methods = new HashMap<String, JavaMethod>();
+	private Map<String, JavaMethod> methods = new LinkedHashMap<String, JavaMethod>();
+	
+	/**
+	 * Map of expressions.
+	 */
+	private Map<String, JavaExpression> expressions = new LinkedHashMap<String, JavaExpression>();
 	
 	/**
 	 * Singleton instance.
@@ -80,6 +86,18 @@ public class JavaInterpreterMaps {
 				break;
 			}
 			
+			// Get the expression.
+			case EXPRESSION: {
+				
+				// Cast the expression.
+				JavaExpression castExpression = (JavaExpression) javaAction;
+				
+				// Now put it back.
+				expressions.put(castExpression.getExpressionVariable(), castExpression);
+				
+				break;
+			}
+			
 			default: {
 				break;
 			}
@@ -108,6 +126,11 @@ public class JavaInterpreterMaps {
 				return methods.containsKey(entryName) ? methods.get(entryName) : null;
 			}
 			
+			// Return the expression.
+			case EXPRESSION: {
+				return expressions.containsKey(entryName) ? expressions.get(entryName) : null;
+			}
+			
 			default: {
 				return null;
 			}
@@ -134,6 +157,10 @@ public class JavaInterpreterMaps {
 			// Return the method.
 			case METHOD: {
 				return methods.containsKey(entryName);
+			}
+			
+			case EXPRESSION: {
+				return expressions.containsKey(entryName);
 			}
 			
 			default: {

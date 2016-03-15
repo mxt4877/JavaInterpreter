@@ -28,6 +28,14 @@ public abstract class InterpreterSuperClass {
 	public abstract Object callField(String fieldName) throws Exception;
 	
 	/**
+	 * Method that will evaluate a single identifier expression.
+	 * 
+	 * @return Object -- the resulting evaluation of the expression.
+	 * @throws Exception
+	 */
+	public abstract Object evaluate() throws Exception;
+	
+	/**
 	 * String that represents the import declaration.
 	 */
 	private static final String IMPORT_DECLARATION = "import com.javasource.InterpreterSuperClass; \n" +
@@ -70,16 +78,29 @@ public abstract class InterpreterSuperClass {
 	private static final String CALL_FIELD_STRING = "\t@Override\n" +
 		"\tpublic Object callField(String fieldName) throws Exception {\n" +
 			"\t\treturn this.getClass().getField(fieldName).get(this);\n" +
+		"\t}\n\n";
+	
+	/**
+	 * String that represents the expression method that subclasses will use to evaluate single expressions.
+	 */
+	private static final String EXPRESSION_METHOD_STRING = "\t@Override\n" +
+		"\tpublic Object evaluate() throws Exception {\n" +
+			"\t\t%s\n" +
 		"\t}\n";
 	
 	/**
-	 * Method that will return a shell of a new class.
+	 * String that represents the fully built class that will be used to return feedback to the user.
+	 */
+	private static final String OVERALL_CLASS = IMPORT_DECLARATION + CLASS_DECLARATION_PREFIX + CALL_METHOD_STRING + CALL_FIELD_STRING + EXPRESSION_METHOD_STRING + CLASS_DECLARATION_SUFFIX;
+	
+	/**
+	 * Method that will return a shell of a new class with expression value put into it.
 	 * 
+	 * @param globalCode -- the global, class-level code.
+	 * @param localCode -- the local, expression-level code.
 	 * @return String -- the text version of a new class.
 	 */
-	public static JavaStringSource generateClass(String code) {
-		
-		// Return the string source.
-		return new JavaStringSource(String.format(IMPORT_DECLARATION + CLASS_DECLARATION_PREFIX + CALL_METHOD_STRING + CALL_FIELD_STRING + CLASS_DECLARATION_SUFFIX, code));
+	public static JavaStringSource generateClass(String globalCode, String localCode) {
+		return new JavaStringSource(String.format(OVERALL_CLASS, globalCode, localCode));
 	}
 }

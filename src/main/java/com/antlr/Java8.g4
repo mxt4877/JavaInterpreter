@@ -785,6 +785,7 @@ expressionStatement
 
 statementExpression
 	:	assignment
+	|	Identifier
 	|	preIncrementExpression
 	|	preDecrementExpression
 	|	postIncrementExpression

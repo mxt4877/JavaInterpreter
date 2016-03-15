@@ -12,7 +12,11 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 
+import com.actions.ActionType;
 import com.actions.JavaAction;
+import com.actions.JavaExpression;
+import com.actions.JavaField;
+import com.actions.JavaIdentifier;
 import com.javasource.InterpreterSuperClass;
 import com.javasource.JavaStringSource;
 
@@ -60,11 +64,19 @@ public class JavaInterpreterCompiler {
 	 */
 	public InterpreterSuperClass compile(JavaAction newAction) throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
-		// We'll only have one or more actions in the event we are declaring 2 fields at once. In this instance, we only need to generate the pre-requsite code once too.
-		String classTextToCompile = generateStringFromActions(newAction, new LinkedList<JavaAction>());
+		// These are the statements that will need to be declared globally.
+		String globalClassStatements = generateGlobalCodeFromDependencies(newAction, new LinkedList<JavaAction>());
 		
-		// Generate the source from this class text.
-		JavaStringSource source = InterpreterSuperClass.generateClass(classTextToCompile);
+		// These are the statements that will need to be declared and 
+		String localClassStatements = generateLocalCodeFromDependencies(newAction, newAction, new LinkedList<JavaAction>());
+		
+		// Make sure we return something if we need to.
+		if(localClassStatements == null || localClassStatements.isEmpty()) {
+			localClassStatements = "return \"This method is not implemented.\";";
+		}
+		
+		// Here, we need to figure out local context as well.
+		JavaStringSource source = InterpreterSuperClass.generateClass(globalClassStatements, localClassStatements);
 		
 		// Get the task from the compiler.
 		CompilationTask task = COMPILER.getTask(null, null, null, null, null, Collections.singletonList(source));
@@ -82,12 +94,15 @@ public class JavaInterpreterCompiler {
 	}
 
 	/**
-	 * Recursive method to get the dependent action raw input to use when compiling. 
+	 * Recursive method to get the dependent action raw input to use when compiling for GLOBAL code.
 	 * 
 	 * @param dependentAction -- the dependent action to generate code from.
+	 * @param alreadyProcessedDependents -- the already processed dependencies.
 	 * @return String -- the action code.
 	 */
-	private String generateStringFromActions(JavaAction dependentAction, List<JavaAction> alreadyProcessedDependents) {
+	private String generateGlobalCodeFromDependencies(JavaAction dependentAction, List<JavaAction> alreadyProcessedDependents) {
+		
+		// Build up the dependent code.
 		StringBuilder rawDependentCode = new StringBuilder();
 		
 		// Recurse for any nested dependencies that may exist.
@@ -97,13 +112,82 @@ public class JavaInterpreterCompiler {
 			//		add(t1), add(t2), add(t3);
 			// In the case where t3 has a dependency on t1, we would have t1 declared and gathered twice, causing a compile error.
 			if(!alreadyProcessedDependents.contains(nestedDependency)) {
-				rawDependentCode.append(generateStringFromActions(nestedDependency, alreadyProcessedDependents));
+				rawDependentCode.append(generateGlobalCodeFromDependencies(nestedDependency, alreadyProcessedDependents));
 				alreadyProcessedDependents.add(nestedDependency);
 			}
 		}
 		
-		// Add this one in.
-		rawDependentCode.append("\n").append(dependentAction.getRawInput());
+		// Add this one in if it's not an identifier.
+		if(ActionType.METHOD.equals(dependentAction.getActionType())) {
+			rawDependentCode.append("\n").append(dependentAction.getRawInput());
+		}
+		
+		// Return the value of what we've built up.
+		return rawDependentCode.toString();
+	}
+	
+	/**
+	 * Recursive method to get the dependent action raw input to use when compiling for LOCAL code. 
+	 * 
+	 * @param initialAction -- the initial action to generate code from.
+	 * @param dependentAction -- the dependent action to generate code from.
+	 * @param alreadyProcessedDependents -- the already processed dependencies.
+	 * @return String -- the action code.
+	 */
+	private String generateLocalCodeFromDependencies(JavaAction initialAction, JavaAction dependentAction, List<JavaAction> alreadyProcessedDependents) {
+		
+		// Build up the dependent code.
+		StringBuilder rawDependentCode = new StringBuilder();
+		
+		// Recurse for any nested dependencies that may exist.
+		for(JavaAction nestedDependency : dependentAction.getDependentActions()) {
+			
+			// Make sure we only do this once. Bypass any we might've already processed. This is the case where we may have a list like...
+			//		add(t1), add(t2), add(t3);
+			// In the case where t3 has a dependency on t1, we would have t1 declared and gathered twice, causing a compile error.
+			if(!alreadyProcessedDependents.contains(nestedDependency)) {
+				rawDependentCode.append(generateLocalCodeFromDependencies(initialAction, nestedDependency, alreadyProcessedDependents));
+				alreadyProcessedDependents.add(nestedDependency);
+			}
+		}
+		
+		// Add this one in if it's an expression.
+		if(dependentAction.getActionType().equals(ActionType.EXPRESSION)) {
+			rawDependentCode.append("\n").append(dependentAction.getRawInput());
+			
+			// If we made it back around to the end...
+			if(initialAction == dependentAction) {
+				String returnValue = "return " + ((JavaExpression)dependentAction).getExpressionVariable() + ";";
+				
+				// Append the return.
+				rawDependentCode.append("\n").append(returnValue);
+			}
+		}
+		
+		// Add this one in if it's a field.
+		if(dependentAction.getActionType().equals(ActionType.FIELD)) {
+			rawDependentCode.append("\n").append(dependentAction.getRawInput());
+			
+			// If we made it back around to the end...
+			if(initialAction == dependentAction) {
+				String returnValue = "return " + ((JavaField)dependentAction).getFieldName() + ";";
+				
+				// Append the return.
+				rawDependentCode.append("\n").append(returnValue);
+			}
+		}
+		
+		// Add this one in if it's an identifier.
+		else if(dependentAction.getActionType().equals(ActionType.IDENTIFIER)) {
+			
+			// If we made it back around to the end...
+			if(initialAction == dependentAction) {
+				String returnValue = "return " + ((JavaIdentifier)dependentAction).getRawInput();
+				
+				// Append the return.
+				rawDependentCode.append("\n").append(returnValue);
+			}
+		}
 		
 		// Return the value of what we've built up.
 		return rawDependentCode.toString();

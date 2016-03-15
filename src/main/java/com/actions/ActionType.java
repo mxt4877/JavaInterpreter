@@ -6,5 +6,5 @@ package com.actions;
  * @author <a href="mailto:mxt4877@rit.edu">Mike Thomsen</a>
  */
 public enum ActionType {
-	FIELD, METHOD;
+	FIELD, METHOD, EXPRESSION, IDENTIFIER;
 }

@@ -19,9 +19,9 @@ import com.antlr.Java8BaseListener;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
 import com.antlr.Java8Parser.ClassDeclarationContext;
+import com.antlr.Java8Parser.ExpressionStatementContext;
 import com.antlr.Java8Parser.FieldDeclarationContext;
 import com.antlr.Java8Parser.MethodDeclarationContext;
-import com.antlr.Java8Parser.StatementExpressionContext;
 import com.interpret.JavaInterpreterMaps;
 
 /**
@@ -99,9 +99,26 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	}
 	
 	@Override
-	public void enterStatementExpression(StatementExpressionContext statementContext) {
-		System.out.println(findIdentifiers(statementContext));
-		System.out.println("Got an statement expression context...");
+	public void enterExpressionStatement(ExpressionStatementContext statementContext) {
+		
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(statementContext));
+		
+		// Go walk this specifically.
+		Java8Parser newParser = getNewParser();
+		
+		// Pass through the raw input to the field listener.
+		JavaExpressionListener listener = new JavaExpressionListener(rawInput);
+		
+		// Get the walker and walk with the new listener.
+		ParseTreeWalker walker = new ParseTreeWalker();
+		walker.walk(listener, newParser.expressionStatement());
+		
+		// Set the new action.
+		this.newAction = listener.getJavaAction();
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
 	}
 	
 	@Override
