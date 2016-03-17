@@ -79,6 +79,8 @@ public class JavaInterpreterCompiler {
 		
 		// Call the compiler, and if it works, put it into the maps!
 		if(task.call()) {
+			
+			// If we are successful, put it into the map.
 			JavaInterpreterMaps.getInstance().putEntry(newAction);
 			
 			// Load up the class again with this class loader.
@@ -128,7 +130,7 @@ public class JavaInterpreterCompiler {
 	}
 	
 	/**
-	 * Recursive method to get the dependent action raw input to use when compiling for LOCAL code. 
+	 * Recursive method to get the dependent action raw input to use when compiling for LOCAL code -- at the method level!
 	 * 
 	 * @param initialAction -- the initial action to generate code from.
 	 * @param dependentAction -- the dependent action to generate code from.

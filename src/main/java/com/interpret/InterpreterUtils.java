@@ -58,4 +58,14 @@ public class InterpreterUtils {
 	public static boolean isIdentifier(JavaAction javaAction) {
 		return ActionType.IDENTIFIER.equals(javaAction.getActionType());
 	}
+	
+	/**
+	 * Return if this is a method.
+	 * 
+	 * @param javaAction -- the action type.
+	 * @return TRUE if method, FALSE if not.
+	 */
+	public static boolean isMethod(JavaAction javaAction) {
+		return ActionType.METHOD.equals(javaAction.getActionType());
+	}
 }

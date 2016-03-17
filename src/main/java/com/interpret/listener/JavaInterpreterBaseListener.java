@@ -22,6 +22,7 @@ import com.antlr.Java8Parser.ClassDeclarationContext;
 import com.antlr.Java8Parser.ExpressionStatementContext;
 import com.antlr.Java8Parser.FieldDeclarationContext;
 import com.antlr.Java8Parser.MethodDeclarationContext;
+import com.interpret.InterpreterUtils;
 import com.interpret.JavaInterpreterMaps;
 
 /**
@@ -101,8 +102,8 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	@Override
 	public void enterExpressionStatement(ExpressionStatementContext statementContext) {
 		
-		// For some reason, assignment statements can be grabbed here. Might be a bug in antlr.
-		if(this.newAction != null && ActionType.METHOD.equals(this.newAction.getActionType())) {
+		// For some reason, assignment statements can be grabbed here after the method has been established.. Might be a bug in antlr/grammar.
+		if(this.newAction != null && InterpreterUtils.isMethod(newAction)) {
 			return;
 		}
 		
