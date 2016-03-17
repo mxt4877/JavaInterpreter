@@ -70,4 +70,11 @@ public abstract class JavaAction {
 	public ActionType getActionType() {
 		return actionType;
 	}
+	
+	/**
+	 * Method to get the declared name, dependent on each of the subclasses.
+	 * 
+	 * @return String -- declared name.
+	 */
+	public abstract String getEvaluation();
 }

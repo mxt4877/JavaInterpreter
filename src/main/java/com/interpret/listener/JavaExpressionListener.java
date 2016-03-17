@@ -52,7 +52,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 	@Override
 	public void enterMethodInvocation(MethodInvocationContext methodInvocationContext) {
 		this.expressionVariable = methodInvocationContext.methodName().Identifier().getText();
-		this.javaAction = new JavaIdentifier(rawInput);
+		this.javaAction = new JavaIdentifier(rawInput, expressionVariable);
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 		
 		// The identifier, if it exists by itself.
 		if(statementExpression.Identifier() != null) {
-			this.javaAction = new JavaIdentifier(this.rawInput);
+			this.javaAction = new JavaIdentifier(this.rawInput, statementExpression.Identifier().getText());
 		}
 		
 		if(statementExpression.expression() != null) {

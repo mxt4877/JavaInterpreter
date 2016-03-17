@@ -12,11 +12,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 
-import com.actions.ActionType;
 import com.actions.JavaAction;
-import com.actions.JavaExpression;
-import com.actions.JavaField;
-import com.actions.JavaIdentifier;
 import com.javasource.InterpreterSuperClass;
 import com.javasource.JavaStringSource;
 
@@ -72,7 +68,7 @@ public class JavaInterpreterCompiler {
 		
 		// Make sure we return something if we need to.
 		if(localClassStatements == null || localClassStatements.isEmpty()) {
-			localClassStatements = "return \"This method is not implemented.\";";
+			localClassStatements = "return \"UNEXPECTED RESULT!\";";
 		}
 		
 		// Here, we need to figure out local context as well.
@@ -84,13 +80,18 @@ public class JavaInterpreterCompiler {
 		// Call the compiler, and if it works, put it into the maps!
 		if(task.call()) {
 			JavaInterpreterMaps.getInstance().putEntry(newAction);
+			
+			// Load up the class again with this class loader.
+			URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(".").toURI().toURL()}, this.getClass().getClassLoader());
+			
+			// Return an instance of this class.
+			return (InterpreterSuperClass) classLoader.loadClass("CompileClass").newInstance();
 		}
 		
-		// Load up the class again with this class loader.
-		URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(".").toURI().toURL()}, this.getClass().getClassLoader());
-		
-		// Return an instance of this class.
-		return (InterpreterSuperClass) classLoader.loadClass("CompileClass").newInstance();
+		// Otherwise return nothing.
+		else {
+			return null;
+		}
 	}
 
 	/**
@@ -117,8 +118,8 @@ public class JavaInterpreterCompiler {
 			}
 		}
 		
-		// Add this one in if it's not an identifier.
-		if(ActionType.METHOD.equals(dependentAction.getActionType())) {
+		// Add this one in if it's global -- should be declared at the class level.
+		if(InterpreterUtils.isGlobal(dependentAction)) {
 			rawDependentCode.append("\n").append(dependentAction.getRawInput());
 		}
 		
@@ -151,42 +152,19 @@ public class JavaInterpreterCompiler {
 			}
 		}
 		
-		// Add this one in if it's an expression.
-		if(dependentAction.getActionType().equals(ActionType.EXPRESSION)) {
+		// If it's both local and NOT an identifier, then do append on the raw input.
+		if(InterpreterUtils.isLocal(dependentAction) && !InterpreterUtils.isIdentifier(dependentAction)) {
 			rawDependentCode.append("\n").append(dependentAction.getRawInput());
-			
-			// If we made it back around to the end...
-			if(initialAction == dependentAction) {
-				String returnValue = "return " + ((JavaExpression)dependentAction).getExpressionVariable() + ";";
-				
-				// Append the return.
-				rawDependentCode.append("\n").append(returnValue);
-			}
 		}
 		
-		// Add this one in if it's a field.
-		if(dependentAction.getActionType().equals(ActionType.FIELD)) {
-			rawDependentCode.append("\n").append(dependentAction.getRawInput());
+		// If we made it back around to the beginning of the recursion, add on what we need to return.
+		if(initialAction == dependentAction) {
 			
-			// If we made it back around to the end...
-			if(initialAction == dependentAction) {
-				String returnValue = "return " + ((JavaField)dependentAction).getFieldName() + ";";
-				
-				// Append the return.
-				rawDependentCode.append("\n").append(returnValue);
-			}
-		}
-		
-		// Add this one in if it's an identifier.
-		else if(dependentAction.getActionType().equals(ActionType.IDENTIFIER)) {
+			// Get the return value.
+			String returnValue = "return " + dependentAction.getEvaluation() + ";";
 			
-			// If we made it back around to the end...
-			if(initialAction == dependentAction) {
-				String returnValue = "return " + ((JavaIdentifier)dependentAction).getRawInput();
-				
-				// Append the return.
-				rawDependentCode.append("\n").append(returnValue);
-			}
+			// Append the return.
+			rawDependentCode.append("\n").append(returnValue);
 		}
 		
 		// Return the value of what we've built up.

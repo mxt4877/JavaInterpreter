@@ -33,4 +33,9 @@ public class JavaField extends JavaAction {
 	public String getFieldName() {
 		return fieldName;
 	}
+	
+	@Override
+	public String getEvaluation() {
+		return "\"" + getFieldName() + " = \" + " + getFieldName();
+	}
 }

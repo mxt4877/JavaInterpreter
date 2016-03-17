@@ -7,8 +7,6 @@ import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import com.actions.JavaAction;
-import com.actions.JavaField;
-import com.actions.JavaMethod;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
 import com.interpret.listener.JavaInterpreterBaseListener;
@@ -106,39 +104,9 @@ public class JavaInterpreter {
 		// Compile it, we'll get the new version of the InterpreterSuperClass by doing this, with updated methods and values.
     	InterpreterSuperClass superClass = JavaInterpreterCompiler.getInstance().compile(createdAction);
     	
-    	// If it's a java field, call it!
-    	switch(createdAction.getActionType()) {
-    	
-    		// Evaluate a field.
-	    	case FIELD: {
-	    		
-	    		// Cast it.
-	    		JavaField createdField = (JavaField) createdAction;
-	    		
-	    		// Try to call the field.
-	    		try {
-	    			System.out.println(createdField.getFieldName() + " = " + superClass.evaluate());
-	    		}
-	    		
-	    		// Ignore this one, since it'll die in the compilation.
-	    		catch(NoSuchFieldException e) { ; }
-	    		
-	    		break;
-	    	}
-	    
-	    	// Evaluate a method.
-	    	case METHOD: {
-	    		System.out.println(((JavaMethod)createdAction).getMethodName() + " successfully created. ");
-	    		
-	    		break;
-	    	}
-	    	
-	    	// Evaluate an identifier.
-	    	case EXPRESSION:
-	    	case IDENTIFIER: {
-	    		System.out.println(superClass.evaluate());
-	    		break;
-	    	}
+    	// The class will be null if the compile failed.
+    	if(superClass != null) {
+    		System.out.println(superClass.evaluate());
     	}
 	}
 }

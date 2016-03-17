@@ -101,6 +101,11 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	@Override
 	public void enterExpressionStatement(ExpressionStatementContext statementContext) {
 		
+		// For some reason, assignment statements can be grabbed here. Might be a bug in antlr.
+		if(this.newAction != null && ActionType.METHOD.equals(this.newAction.getActionType())) {
+			return;
+		}
+		
 		// Find the relevant dependencies.
 		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(statementContext));
 		

@@ -32,4 +32,9 @@ public class JavaExpression extends JavaAction {
 	public String getExpressionVariable() {
 		return expressionVariable;
 	}
+
+	@Override
+	public String getEvaluation() {
+		return "\"" + getExpressionVariable() + " = \" + " + getExpressionVariable();
+	}
 }

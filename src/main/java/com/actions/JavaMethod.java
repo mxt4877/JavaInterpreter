@@ -34,4 +34,9 @@ public class JavaMethod extends JavaAction {
 	public String getMethodName() {
 		return methodName;
 	}
+	
+	@Override
+	public String getEvaluation() {
+		return "\"Successfully created " + getMethodName() + ".\"";
+	}
 }
