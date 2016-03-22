@@ -15,7 +15,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
-import com.actions.JavaIdentifier;
+import com.actions.JavaDanglingExpression;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
@@ -130,8 +130,7 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	
 	@Override
 	public void enterForStatement(ForStatementContext ctx) {
-		System.out.println("Got a for statement...");
-		this.newAction = new JavaIdentifier("", "");
+		this.newAction = new JavaDanglingExpression(this.rawInput);
 	};
 	
 	@Override
