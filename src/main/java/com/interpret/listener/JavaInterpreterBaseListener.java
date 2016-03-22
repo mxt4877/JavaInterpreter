@@ -15,14 +15,15 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
+import com.actions.JavaIdentifier;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
 import com.antlr.Java8Parser.ClassDeclarationContext;
 import com.antlr.Java8Parser.ExpressionStatementContext;
 import com.antlr.Java8Parser.FieldDeclarationContext;
+import com.antlr.Java8Parser.ForStatementContext;
 import com.antlr.Java8Parser.MethodDeclarationContext;
-import com.interpret.InterpreterUtils;
 import com.interpret.JavaInterpreterMaps;
 
 /**
@@ -103,7 +104,7 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	public void enterExpressionStatement(ExpressionStatementContext statementContext) {
 		
 		// For some reason, assignment statements can be grabbed here after the method has been established.. Might be a bug in antlr/grammar.
-		if(this.newAction != null && InterpreterUtils.isMethod(newAction)) {
+		if(this.newAction != null) {
 			return;
 		}
 		
@@ -126,6 +127,12 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 		// Set the dependent actions.
 		newAction.setDependentActions(dependentActions);
 	}
+	
+	@Override
+	public void enterForStatement(ForStatementContext ctx) {
+		System.out.println("Got a for statement...");
+		this.newAction = new JavaIdentifier("", "");
+	};
 	
 	@Override
 	public void enterClassDeclaration(ClassDeclarationContext classDeclarationContext) {

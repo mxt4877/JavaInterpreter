@@ -15,12 +15,12 @@ public class JavaMethod extends JavaAction {
 
 	/**
 	 * Constructor to create this object, passing in the raw input that calls to the superclass to register
-	 * this as a method.
+	 * this as a method. Make sure we remove static as we want no static methods.
 	 * 
 	 * @param rawInput -- the raw code.
 	 */
 	public JavaMethod(String rawInput, String methodName) {
-		super(rawInput, ActionType.METHOD);
+		super(rawInput.replace("static", ""), ActionType.METHOD);
 		
 		// Set the method name!
 		this.methodName = methodName;

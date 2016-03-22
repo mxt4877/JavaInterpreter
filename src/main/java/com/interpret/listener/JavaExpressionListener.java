@@ -1,6 +1,7 @@
 package com.interpret.listener;
 
 import com.actions.JavaAction;
+import com.actions.JavaDanglingExpression;
 import com.actions.JavaExpression;
 import com.actions.JavaIdentifier;
 import com.antlr.Java8BaseListener;
@@ -83,8 +84,9 @@ public class JavaExpressionListener extends Java8BaseListener {
 			this.javaAction = new JavaIdentifier(this.rawInput, statementExpression.Identifier().getText());
 		}
 		
+		// An expression can also live by itself, so just grab the text off of it.
 		if(statementExpression.expression() != null) {
-			System.err.println("EXPRESSION!");
+			this.javaAction = new JavaDanglingExpression(this.rawInput);
 		}
 	}
 }
