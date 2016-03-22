@@ -9,6 +9,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import com.actions.JavaAction;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
+import com.exception.VoidMethodInvocationException;
 import com.interpret.listener.JavaInterpreterBaseListener;
 import com.javasource.InterpreterSuperClass;
 
@@ -102,11 +103,20 @@ public class JavaInterpreter {
 	private void compileAndEvaluateJavaAction(JavaAction createdAction) throws Exception {
 		
 		// Compile it, we'll get the new version of the InterpreterSuperClass by doing this, with updated methods and values.
-    	InterpreterSuperClass superClass = JavaInterpreterCompiler.getInstance().compile(createdAction);
+    	InterpreterSuperClass superClass = JavaInterpreterCompiler.getInstance().compile(createdAction, true);
     	
     	// The class will be null if the compile failed.
     	if(superClass != null) {
-    		System.out.println(superClass.evaluate());
+    		
+    		// Try to print the feedback.
+    		try {
+    			System.out.println(superClass.evaluate());
+    		}
+    		
+    		// If we failed, it was a VOID expression, so evaluate void.
+    		catch(VoidMethodInvocationException e) {
+    			superClass.evaluateVoid();
+    		}
     	}
 	}
 }

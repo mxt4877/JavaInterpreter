@@ -13,6 +13,7 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.ToolProvider;
 
 import com.actions.JavaAction;
+import com.compiler.JavaInterpreterDiagnosticListener;
 import com.javasource.InterpreterSuperClass;
 import com.javasource.JavaStringSource;
 
@@ -58,13 +59,13 @@ public class JavaInterpreterCompiler {
 	 * @throws IllegalAccessException 
 	 * @throws InstantiationException 
 	 */
-	public InterpreterSuperClass compile(JavaAction newAction) throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
+	public InterpreterSuperClass compile(JavaAction newAction, boolean expectReturn) throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
 		// These are the statements that will need to be declared globally.
 		String globalClassStatements = generateGlobalCodeFromDependencies(newAction, new LinkedList<JavaAction>());
 		
 		// These are the statements that will need to be declared and 
-		String localClassStatements = generateLocalCodeFromDependencies(newAction, newAction, new LinkedList<JavaAction>());
+		String localClassStatements = generateLocalCodeFromDependencies(newAction, newAction, new LinkedList<JavaAction>(), expectReturn);
 		
 		// Make sure we return something if we need to.
 		if(localClassStatements == null || localClassStatements.isEmpty()) {
@@ -72,10 +73,15 @@ public class JavaInterpreterCompiler {
 		}
 		
 		// Here, we need to figure out local context as well.
-		JavaStringSource source = InterpreterSuperClass.generateClass(globalClassStatements, localClassStatements);
+		JavaStringSource source = expectReturn 
+										? InterpreterSuperClass.generateClass(globalClassStatements, localClassStatements, ";") 
+												: InterpreterSuperClass.generateClass(globalClassStatements, "throw new VoidMethodInvocationException();", localClassStatements);
+		
+		// The diagnostic.
+		JavaInterpreterDiagnosticListener diagListener = new JavaInterpreterDiagnosticListener();
 		
 		// Get the task from the compiler.
-		CompilationTask task = COMPILER.getTask(null, null, null, null, null, Collections.singletonList(source));
+		CompilationTask task = COMPILER.getTask(null, null, diagListener, null, null, Collections.singletonList(source));
 		
 		// Call the compiler, and if it works, put it into the maps!
 		if(task.call()) {
@@ -92,6 +98,17 @@ public class JavaInterpreterCompiler {
 		
 		// Otherwise return nothing.
 		else {
+
+			// We need to try and recompile in the event we have a void cannot be converted error.
+			if(diagListener.containsVoidCannotBeConvertedError()) {
+				return compile(newAction, false);
+			}
+			
+			// This time, just print the compile errors.
+			else {
+				diagListener.printErrors();
+			}
+			
 			return null;
 		}
 	}
@@ -135,9 +152,10 @@ public class JavaInterpreterCompiler {
 	 * @param initialAction -- the initial action to generate code from.
 	 * @param dependentAction -- the dependent action to generate code from.
 	 * @param alreadyProcessedDependents -- the already processed dependencies.
+	 * @param expectReturn -- are we expecting to put a return in?
 	 * @return String -- the action code.
 	 */
-	private String generateLocalCodeFromDependencies(JavaAction initialAction, JavaAction dependentAction, List<JavaAction> alreadyProcessedDependents) {
+	private String generateLocalCodeFromDependencies(JavaAction initialAction, JavaAction dependentAction, List<JavaAction> alreadyProcessedDependents, boolean expectReturn) {
 		
 		// Build up the dependent code.
 		StringBuilder rawDependentCode = new StringBuilder();
@@ -149,7 +167,7 @@ public class JavaInterpreterCompiler {
 			//		add(t1), add(t2), add(t3);
 			// In the case where t3 has a dependency on t1, we would have t1 declared and gathered twice, causing a compile error.
 			if(!alreadyProcessedDependents.contains(nestedDependency)) {
-				rawDependentCode.append(generateLocalCodeFromDependencies(initialAction, nestedDependency, alreadyProcessedDependents));
+				rawDependentCode.append(generateLocalCodeFromDependencies(initialAction, nestedDependency, alreadyProcessedDependents, expectReturn));
 				alreadyProcessedDependents.add(nestedDependency);
 			}
 		}
@@ -163,7 +181,7 @@ public class JavaInterpreterCompiler {
 		if(initialAction == dependentAction) {
 			
 			// Get the return value.
-			String returnValue = "return " + dependentAction.getEvaluation() + ";";
+			String returnValue = ( expectReturn ? "return " : "" ) + dependentAction.getEvaluation() + ";";
 			
 			// Append the return.
 			rawDependentCode.append("\n").append(returnValue);

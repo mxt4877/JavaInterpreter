@@ -36,9 +36,17 @@ public abstract class InterpreterSuperClass {
 	public abstract Object evaluate() throws Exception;
 	
 	/**
+	 * Method that will evaluate a void expression.
+	 * 
+	 * @throws Exception
+	 */
+	public abstract void evaluateVoid() throws Exception;
+	
+	/**
 	 * String that represents the import declaration.
 	 */
 	private static final String IMPORT_DECLARATION = "import com.javasource.InterpreterSuperClass; \n" +
+													 "import com.exception.VoidMethodInvocationException; \n" +
 													 "import java.util.*; \n" +
 													 "import java.math.*; \n" +
 													 "import java.io.*; \n" +
@@ -89,9 +97,17 @@ public abstract class InterpreterSuperClass {
 		"\t}\n";
 	
 	/**
+	 * String that represents the expression method that subclasses will use to evaluate single expressions.
+	 */
+	private static final String EXPRESSION_VOID_METHOD_STRING = "\t@Override\n" +
+		"\tpublic void evaluateVoid() throws Exception {\n" +
+			"\t\t%s\n" +
+		"\t}\n";
+	
+	/**
 	 * String that represents the fully built class that will be used to return feedback to the user.
 	 */
-	private static final String OVERALL_CLASS = IMPORT_DECLARATION + CLASS_DECLARATION_PREFIX + CALL_METHOD_STRING + CALL_FIELD_STRING + EXPRESSION_METHOD_STRING + CLASS_DECLARATION_SUFFIX;
+	private static final String OVERALL_CLASS = IMPORT_DECLARATION + CLASS_DECLARATION_PREFIX + CALL_METHOD_STRING + CALL_FIELD_STRING + EXPRESSION_METHOD_STRING + EXPRESSION_VOID_METHOD_STRING + CLASS_DECLARATION_SUFFIX;
 	
 	/**
 	 * Method that will return a shell of a new class with expression value put into it.
@@ -100,7 +116,7 @@ public abstract class InterpreterSuperClass {
 	 * @param localCode -- the local, expression-level code.
 	 * @return String -- the text version of a new class.
 	 */
-	public static JavaStringSource generateClass(String globalCode, String localCode) {
-		return new JavaStringSource(String.format(OVERALL_CLASS, globalCode, localCode));
+	public static JavaStringSource generateClass(String globalCode, String returnCode, String localCode) {
+		return new JavaStringSource(String.format(OVERALL_CLASS, globalCode, returnCode, localCode));
 	}
 }
