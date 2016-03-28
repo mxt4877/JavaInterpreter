@@ -35,7 +35,7 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 		for(KnownCompilerError knownError : KnownCompilerError.values()) {
 			
 			// If we matched, add it into the list.
-			if(diagnosticMessage.equals(knownError.getCompilerMessage())) {
+			if(diagnosticMessage.equalsIgnoreCase(knownError.getCompilerMessage())) {
 				knownErrors.add(knownError);
 			}
 		}
@@ -49,8 +49,8 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 	 * 
 	 * @return TRUE if it contains, FALSE if it doesn't.
 	 */
-	public boolean containsVoidCannotBeConvertedError() {
-		return knownErrors.contains(KnownCompilerError.VOID_CANNOT_BE_CONVERTED);
+	public boolean shouldTryRecompile() {
+		return knownErrors.size() == 1 && knownErrors.contains(KnownCompilerError.VOID_CANNOT_BE_CONVERTED);
 	}
 	
 	/**

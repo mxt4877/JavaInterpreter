@@ -100,7 +100,7 @@ public class JavaInterpreterCompiler {
 		else {
 
 			// We need to try and recompile in the event we have a void cannot be converted error.
-			if(diagListener.containsVoidCannotBeConvertedError()) {
+			if(diagListener.shouldTryRecompile() && expectReturn) {
 				return compile(newAction, false);
 			}
 			
@@ -181,7 +181,7 @@ public class JavaInterpreterCompiler {
 		if(initialAction == dependentAction) {
 			
 			// Get the return value.
-			String returnValue = ( expectReturn ? "return " : "" ) + dependentAction.getEvaluation() + ";";
+			String returnValue = ( expectReturn ? "return " : "" ) + dependentAction.getEvaluation(expectReturn) + ";";
 			
 			// Append the return.
 			rawDependentCode.append("\n").append(returnValue);

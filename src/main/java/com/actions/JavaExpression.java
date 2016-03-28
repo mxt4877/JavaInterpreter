@@ -34,7 +34,7 @@ public class JavaExpression extends JavaAction {
 	}
 
 	@Override
-	public String getEvaluation() {
+	public String getEvaluation(boolean returnSomething) {
 		return "\"" + getExpressionVariable() + " = \" + " + getExpressionVariable();
 	}
 }

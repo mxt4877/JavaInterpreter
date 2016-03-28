@@ -159,6 +159,7 @@ public class JavaInterpreterMaps {
 				return methods.containsKey(entryName);
 			}
 			
+			// Return the expression.
 			case EXPRESSION: {
 				return expressions.containsKey(entryName);
 			}

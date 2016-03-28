@@ -86,6 +86,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 		
 		// An expression can also live by itself, so just grab the text off of it.
 		if(statementExpression.expression() != null) {
+			
 			this.javaAction = new JavaDanglingExpression(this.rawInput);
 		}
 	}

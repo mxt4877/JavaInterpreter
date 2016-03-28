@@ -17,7 +17,7 @@ public class JavaDanglingExpression extends JavaAction {
 	}
 
 	@Override
-	public String getEvaluation() {
+	public String getEvaluation(boolean returnSomething) {
 		int lastSemiColon = getRawInput().lastIndexOf(";");
 		return getRawInput().substring(0, lastSemiColon);
 	}

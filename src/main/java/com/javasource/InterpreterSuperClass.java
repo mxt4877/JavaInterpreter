@@ -9,25 +9,6 @@ package com.javasource;
 public abstract class InterpreterSuperClass {
 	
 	/**
-	 * Method that will call a method that exists on the given subclass.
-	 * 
-	 * @param methodName -- the method name.
-	 * @param parameters -- the parameters to pass to it.
-	 * @return Object, the result of the method call.
-	 * @throws Exception
-	 */
-	public abstract Object callMethod(String methodName, Object ... parameters) throws Exception;
-	
-	/**
-	 * Method that will call a field that exists on the given subclass -- returning its value.
-	 * 
-	 * @param fieldName -- the field name.
-	 * @return Object -- the resulting value of the given field.
-	 * @throws Exception
-	 */
-	public abstract Object callField(String fieldName) throws Exception;
-	
-	/**
 	 * Method that will evaluate a single identifier expression.
 	 * 
 	 * @return Object -- the resulting evaluation of the expression.
@@ -63,32 +44,6 @@ public abstract class InterpreterSuperClass {
 	private static final String CLASS_DECLARATION_SUFFIX = "}";
 	
 	/**
-	 * String that represents the method string that subclasses will use to invoke methods.
-	 */
-	private static final String CALL_METHOD_STRING = "\t@Override\n" +
-		"\tpublic Object callMethod(String methodName, Object ... parameters) throws Exception {\n" +
-			"\t\tClass[] parameterTypes = null;\n\n" +
-			
-			"\t\tif(parameters != null && parameters.length > 0) {\n" +
-				"\t\t\tparameterTypes = new Class[parameters.length];\n\n" +
-				
-				"\t\t\tfor(int i = 0; i < parameters.length; i++) {\n" +
-					"\t\t\t\tparameterTypes[i] = parameters[i].getClass();\n" + 
-				"\t\t\t}\n" +
-			"\t\t}\n\n" +
-			
-			"\t\treturn this.getClass().getMethod(methodName, parameterTypes).invoke(this, parameters);\n" +
-		"\t}\n\n";
-
-	/**
-	 * String that represents the method string that subclasses will use to get values of fields.
-	 */
-	private static final String CALL_FIELD_STRING = "\t@Override\n" +
-		"\tpublic Object callField(String fieldName) throws Exception {\n" +
-			"\t\treturn this.getClass().getField(fieldName).get(this);\n" +
-		"\t}\n\n";
-	
-	/**
 	 * String that represents the expression method that subclasses will use to evaluate single expressions.
 	 */
 	private static final String EXPRESSION_METHOD_STRING = "\t@Override\n" +
@@ -107,7 +62,7 @@ public abstract class InterpreterSuperClass {
 	/**
 	 * String that represents the fully built class that will be used to return feedback to the user.
 	 */
-	private static final String OVERALL_CLASS = IMPORT_DECLARATION + CLASS_DECLARATION_PREFIX + CALL_METHOD_STRING + CALL_FIELD_STRING + EXPRESSION_METHOD_STRING + EXPRESSION_VOID_METHOD_STRING + CLASS_DECLARATION_SUFFIX;
+	private static final String OVERALL_CLASS = IMPORT_DECLARATION + CLASS_DECLARATION_PREFIX + EXPRESSION_METHOD_STRING + EXPRESSION_VOID_METHOD_STRING + CLASS_DECLARATION_SUFFIX;
 	
 	/**
 	 * Method that will return a shell of a new class with expression value put into it.

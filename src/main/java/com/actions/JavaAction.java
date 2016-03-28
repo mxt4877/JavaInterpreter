@@ -74,7 +74,8 @@ public abstract class JavaAction {
 	/**
 	 * Method to get the declared name, dependent on each of the subclasses.
 	 * 
+	 * @param returnSomething -- should return soemthing?
 	 * @return String -- declared name.
 	 */
-	public abstract String getEvaluation();
+	public abstract String getEvaluation(boolean returnSomething);
 }

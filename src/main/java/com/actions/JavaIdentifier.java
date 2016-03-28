@@ -34,7 +34,7 @@ public class JavaIdentifier extends JavaAction {
 	}
 	
 	@Override
-	public String getEvaluation() {
+	public String getEvaluation(boolean returnSomething) {
 		return "\"" + getIdentifierName() + " = \" + " + getIdentifierName();
 	}
 }

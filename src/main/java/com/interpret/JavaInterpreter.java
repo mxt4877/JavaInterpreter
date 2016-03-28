@@ -56,42 +56,60 @@ public class JavaInterpreter {
         	// Don't do anything if it's not null.
         	if(nextInput != null && ! nextInput.trim().isEmpty()) {
         	
-	        	// Put it into a lexer.
-	        	Java8Lexer java8Lexer = new Java8Lexer(new ANTLRInputStream(nextInput));
-	        	
-	        	// Generate the token stream from that lexer.
-	        	CommonTokenStream tokenStream = new CommonTokenStream(java8Lexer);
-	        	
-	        	// Now use the parser
-	        	Java8Parser parser = new Java8Parser(tokenStream);
-	        	
-	        	// Make the parser and lexer be quiet.
-	        	parser.removeErrorListeners();
-	        	java8Lexer.removeErrorListeners();
-	        	
-	        	// Walk the tree.
-	        	ParseTreeWalker walker = new ParseTreeWalker();
-	        	
-	        	// The listener.
-	        	JavaInterpreterBaseListener listener = new JavaInterpreterBaseListener(nextInput);
-	        	
-	        	// Walk it!
-	        	walker.walk(listener, parser.compilationUnit());
-	        	
-	        	// Get the newly created action from the listener.
-	        	JavaAction newlyCreatedAction = listener.getJavaAction();
-	        	
-	        	// Tell the user we don't understand the input.
-	        	if(newlyCreatedAction == null) {
-	        		System.err.println("This is an unrecognized statement, continuing on.");
-	        	}
+        		try {
+        			JavaAction newlyCreatedAction = parseInput(nextInput);
+        			
+        			// Tell the user we don't understand the input.
+    	        	if(newlyCreatedAction == null) {
+    	        		System.err.println("This is an unrecognized statement, continuing on.");
+    	        	}
 
-	        	// Get what the result was.
-	        	else {
-	        		compileAndEvaluateJavaAction(newlyCreatedAction);
-	        	}
+    	        	// Get what the result was.
+    	        	else {
+    	        		compileAndEvaluateJavaAction(newlyCreatedAction);
+    	        	}
+        		}
+        		
+        		// Eat any exception here (for now -- need to determine what to do).
+        		catch(Exception e) {
+        			System.err.println("Statement encountered failure : " + e.getMessage());
+        		}
         	}
         }
+	}
+	
+	/**
+	 * Method to parse the input.
+	 * 
+	 * @param nextInput -- raw string value.
+	 * @return {@link JavaAction} -- the resulting java action.
+	 */
+	private JavaAction parseInput(String nextInput) {
+		
+		// Put it into a lexer.
+    	Java8Lexer java8Lexer = new Java8Lexer(new ANTLRInputStream(nextInput));
+    	
+    	// Generate the token stream from that lexer.
+    	CommonTokenStream tokenStream = new CommonTokenStream(java8Lexer);
+    	
+    	// Now use the parser
+    	Java8Parser parser = new Java8Parser(tokenStream);
+    	
+    	// Make the parser and lexer be quiet.
+    	parser.removeErrorListeners();
+    	java8Lexer.removeErrorListeners();
+    	
+    	// Walk the tree.
+    	ParseTreeWalker walker = new ParseTreeWalker();
+    	
+    	// The listener.
+    	JavaInterpreterBaseListener listener = new JavaInterpreterBaseListener(nextInput);
+    	
+    	// Walk it!
+    	walker.walk(listener, parser.compilationUnit());
+    	
+    	// Get the newly created action from the listener.
+    	return listener.getJavaAction();
 	}
 	
 	/**
@@ -110,10 +128,10 @@ public class JavaInterpreter {
     		
     		// Try to print the feedback.
     		try {
-    			System.out.println(superClass.evaluate());
+    			System.out.println("\t\tResult returned: --> " + superClass.evaluate());
     		}
     		
-    		// If we failed, it was a VOID expression, so evaluate void.
+    		// If we failed, it was a VOID expression, so evaluate void instead.
     		catch(VoidMethodInvocationException e) {
     			superClass.evaluateVoid();
     		}
