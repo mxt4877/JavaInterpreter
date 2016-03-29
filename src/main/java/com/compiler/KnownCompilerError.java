@@ -10,7 +10,7 @@ public enum KnownCompilerError {
 	/**
 	 * Void cannot be converted to object! This happens when we try to return a void method call.
 	 */
-	VOID_CANNOT_BE_CONVERTED("incompatible types: void cannot be converted to java.lang.Object");
+	VOID_NOT_ALLOWED_HERE("'void' type not allowed here");
 	
 	/**
 	 * The compiler message.

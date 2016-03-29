@@ -4,8 +4,10 @@ import com.actions.JavaAction;
 import com.actions.JavaDanglingExpression;
 import com.actions.JavaExpression;
 import com.actions.JavaIdentifier;
+import com.actions.JavaLoopOrIfStatement;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Parser.AssignmentContext;
+import com.antlr.Java8Parser.IfThenStatementContext;
 import com.antlr.Java8Parser.LeftHandSideContext;
 import com.antlr.Java8Parser.MethodInvocationContext;
 import com.antlr.Java8Parser.StatementExpressionContext;
@@ -86,7 +88,6 @@ public class JavaExpressionListener extends Java8BaseListener {
 		
 		// An expression can also live by itself, so just grab the text off of it.
 		if(statementExpression.expression() != null) {
-			
 			this.javaAction = new JavaDanglingExpression(this.rawInput);
 		}
 	}

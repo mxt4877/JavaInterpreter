@@ -73,9 +73,7 @@ public class JavaInterpreterCompiler {
 		}
 		
 		// Here, we need to figure out local context as well.
-		JavaStringSource source = expectReturn 
-										? InterpreterSuperClass.generateClass(globalClassStatements, localClassStatements, ";") 
-												: InterpreterSuperClass.generateClass(globalClassStatements, "throw new VoidMethodInvocationException();", localClassStatements);
+		JavaStringSource source = InterpreterSuperClass.generateClass(globalClassStatements, localClassStatements);
 		
 		// The diagnostic.
 		JavaInterpreterDiagnosticListener diagListener = new JavaInterpreterDiagnosticListener();
@@ -180,11 +178,22 @@ public class JavaInterpreterCompiler {
 		// If we made it back around to the beginning of the recursion, add on what we need to return.
 		if(initialAction == dependentAction) {
 			
-			// Get the return value.
-			String returnValue = ( expectReturn ? "return " : "" ) + dependentAction.getEvaluation(expectReturn) + ";";
+			// The ultimate return value.
+			String returnValue = "return " + dependentAction.getEvaluation();
 			
-			// Append the return.
-			rawDependentCode.append("\n").append(returnValue);
+			// No return? It was a void statement, so print out that there's no real result.
+			if(!expectReturn) {
+				rawDependentCode.append("\n").append(dependentAction.getAlternateEvaluation()).append(";");
+				returnValue = "return \"\t\tResult returned: --> Return type of statement was void. Values or expressions may have been printed to the console.\"";
+			}
+
+			// If it's a loop, 
+			else if(InterpreterUtils.isLoopOrIf(initialAction)) {
+				rawDependentCode.append(dependentAction.getRawInput());
+			}
+			
+			// Append on what we built up.
+			rawDependentCode.append("\n").append(returnValue + ";");
 		}
 		
 		// Return the value of what we've built up.

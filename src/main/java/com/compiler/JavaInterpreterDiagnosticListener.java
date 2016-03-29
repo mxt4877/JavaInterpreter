@@ -50,7 +50,7 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 	 * @return TRUE if it contains, FALSE if it doesn't.
 	 */
 	public boolean shouldTryRecompile() {
-		return knownErrors.size() == 1 && knownErrors.contains(KnownCompilerError.VOID_CANNOT_BE_CONVERTED);
+		return knownErrors.size() == 1 && knownErrors.contains(KnownCompilerError.VOID_NOT_ALLOWED_HERE);
 	}
 	
 	/**

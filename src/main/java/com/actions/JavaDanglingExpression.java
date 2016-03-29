@@ -17,7 +17,21 @@ public class JavaDanglingExpression extends JavaAction {
 	}
 
 	@Override
-	public String getEvaluation(boolean returnSomething) {
+	public String getEvaluation() {
+		return "\"\t\tResult returned: --> \" + (" + getActualEvaluation() + ")";
+	}
+	
+	@Override
+	public String getAlternateEvaluation() {
+		return getActualEvaluation();
+	}
+	
+	/**
+	 * Method to get the evaluation of this dangling expression.
+	 * 
+	 * @return String -- the dangling expression.
+	 */
+	private String getActualEvaluation() {
 		int lastSemiColon = getRawInput().lastIndexOf(";");
 		return getRawInput().substring(0, lastSemiColon);
 	}

@@ -68,4 +68,14 @@ public class InterpreterUtils {
 	public static boolean isMethod(JavaAction javaAction) {
 		return ActionType.METHOD.equals(javaAction.getActionType());
 	}
+	
+	/**
+	 * Return if this is a loop.
+	 * 
+	 * @param javaAction -- the action type.
+	 * @return TRUE if loop, FALSE if not.
+	 */
+	public static boolean isLoopOrIf(JavaAction javaAction) {
+		return ActionType.LOOP_OR_IF.equals(javaAction.getActionType());
+	}
 }

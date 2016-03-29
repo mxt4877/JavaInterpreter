@@ -15,15 +15,19 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
-import com.actions.JavaDanglingExpression;
+import com.actions.JavaLoopOrIfStatement;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
 import com.antlr.Java8Parser.ClassDeclarationContext;
+import com.antlr.Java8Parser.DoStatementContext;
 import com.antlr.Java8Parser.ExpressionStatementContext;
 import com.antlr.Java8Parser.FieldDeclarationContext;
 import com.antlr.Java8Parser.ForStatementContext;
+import com.antlr.Java8Parser.IfThenElseStatementContext;
+import com.antlr.Java8Parser.IfThenStatementContext;
 import com.antlr.Java8Parser.MethodDeclarationContext;
+import com.antlr.Java8Parser.WhileStatementContext;
 import com.interpret.JavaInterpreterMaps;
 
 /**
@@ -129,9 +133,94 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	}
 	
 	@Override
-	public void enterForStatement(ForStatementContext ctx) {
-		this.newAction = new JavaDanglingExpression(this.rawInput);
+	public void enterIfThenElseStatement(IfThenElseStatementContext ifThenElseContext) {
+		
+		// We could have a nested if/else statement, so make sure we DON'T try and do it again.
+		if(this.newAction != null) {
+			return;
+		}
+
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(ifThenElseContext));
+		
+		// The java loop.
+		this.newAction = new JavaLoopOrIfStatement(this.rawInput);
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
+	}
+	
+	@Override
+	public void enterIfThenStatement(IfThenStatementContext ifThenContext) {
+		
+		// We could have a nested if/else statement, so make sure we DON'T try and do it again.
+		if(this.newAction != null) {
+			return;
+		}
+		
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(ifThenContext));
+		
+		// The java loop.
+		this.newAction = new JavaLoopOrIfStatement(this.rawInput);
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
+	}
+	
+	@Override
+	public void enterForStatement(ForStatementContext forStatementContext) {
+		
+		// We could have a nested if/else statement, so make sure we DON'T try and do it again.
+		if(this.newAction != null) {
+			return;
+		}
+		
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(forStatementContext));
+		
+		// The java loop.
+		this.newAction = new JavaLoopOrIfStatement(this.rawInput);
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
 	};
+	
+	@Override
+	public void enterWhileStatement(WhileStatementContext whileStatementContext) {
+		
+		// We could have a nested if/else statement, so make sure we DON'T try and do it again.
+		if(this.newAction != null) {
+			return;
+		}
+
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(whileStatementContext));
+		
+		// The java loop.
+		this.newAction = new JavaLoopOrIfStatement(this.rawInput);
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
+	}
+	
+	@Override
+	public void enterDoStatement(DoStatementContext doStatementContext) {
+		
+		// We could have a nested if/else statement, so make sure we DON'T try and do it again.
+		if(this.newAction != null) {
+			return;
+		}
+		
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(doStatementContext));
+		
+		// The java loop.
+		this.newAction = new JavaLoopOrIfStatement(this.rawInput);
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
+	}
 	
 	@Override
 	public void enterClassDeclaration(ClassDeclarationContext classDeclarationContext) {

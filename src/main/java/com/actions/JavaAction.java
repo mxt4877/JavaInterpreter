@@ -74,8 +74,16 @@ public abstract class JavaAction {
 	/**
 	 * Method to get the declared name, dependent on each of the subclasses.
 	 * 
-	 * @param returnSomething -- should return soemthing?
 	 * @return String -- declared name.
 	 */
-	public abstract String getEvaluation(boolean returnSomething);
+	public abstract String getEvaluation();
+	
+	/**
+	 * Method to get the alternate evaluation of a given java action. Default implementation is empty string.
+	 * 
+	 * @return String -- the alternate evaluation.
+	 */
+	public String getAlternateEvaluation() {
+		return "";
+	}
 }

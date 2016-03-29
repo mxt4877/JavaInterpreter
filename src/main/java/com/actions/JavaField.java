@@ -35,7 +35,7 @@ public class JavaField extends JavaAction {
 	}
 	
 	@Override
-	public String getEvaluation(boolean returnSomething) {
-		return "\"" + getFieldName() + " = \" + " + getFieldName();
+	public String getEvaluation() {
+		return "\"\t\tResult returned: --> " + getFieldName() + " = \" + " + getFieldName();
 	}
 }

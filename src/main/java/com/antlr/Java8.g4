@@ -736,12 +736,12 @@ localVariableDeclaration
 	;
 
 statement
-	:	statementWithoutTrailingSubstatement
-	|	labeledStatement
+	:	labeledStatement
 	|	ifThenStatement
 	|	ifThenElseStatement
 	|	whileStatement
 	|	forStatement
+	|	statementWithoutTrailingSubstatement
 	;
 
 statementNoShortIf

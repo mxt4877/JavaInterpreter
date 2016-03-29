@@ -8652,9 +8652,6 @@ public class Java8Parser extends Parser {
 	}
 
 	public static class StatementContext extends ParserRuleContext {
-		public StatementWithoutTrailingSubstatementContext statementWithoutTrailingSubstatement() {
-			return getRuleContext(StatementWithoutTrailingSubstatementContext.class,0);
-		}
 		public LabeledStatementContext labeledStatement() {
 			return getRuleContext(LabeledStatementContext.class,0);
 		}
@@ -8669,6 +8666,9 @@ public class Java8Parser extends Parser {
 		}
 		public ForStatementContext forStatement() {
 			return getRuleContext(ForStatementContext.class,0);
+		}
+		public StatementWithoutTrailingSubstatementContext statementWithoutTrailingSubstatement() {
+			return getRuleContext(StatementWithoutTrailingSubstatementContext.class,0);
 		}
 		public StatementContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -8695,42 +8695,42 @@ public class Java8Parser extends Parser {
 				enterOuterAlt(_localctx, 1);
 				{
 				setState(1505);
-				statementWithoutTrailingSubstatement();
+				labeledStatement();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
 				setState(1506);
-				labeledStatement();
+				ifThenStatement();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
 				setState(1507);
-				ifThenStatement();
+				ifThenElseStatement();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
 				setState(1508);
-				ifThenElseStatement();
+				whileStatement();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
 				setState(1509);
-				whileStatement();
+				forStatement();
 				}
 				break;
 			case 6:
 				enterOuterAlt(_localctx, 6);
 				{
 				setState(1510);
-				forStatement();
+				statementWithoutTrailingSubstatement();
 				}
 				break;
 			}
@@ -18014,9 +18014,9 @@ public class Java8Parser extends Parser {
 		"\u0084\2\u05d8\u05d9\7A\2\2\u05d9\u0105\3\2\2\2\u05da\u05dc\5\u009eP\2"+
 		"\u05db\u05da\3\2\2\2\u05dc\u05df\3\2\2\2\u05dd\u05db\3\2\2\2\u05dd\u05de"+
 		"\3\2\2\2\u05de\u05e0\3\2\2\2\u05df\u05dd\3\2\2\2\u05e0\u05e1\5v<\2\u05e1"+
-		"\u05e2\5n8\2\u05e2\u0107\3\2\2\2\u05e3\u05ea\5\u010c\u0087\2\u05e4\u05ea"+
-		"\5\u0110\u0089\2\u05e5\u05ea\5\u0118\u008d\2\u05e6\u05ea\5\u011a\u008e"+
-		"\2\u05e7\u05ea\5\u012c\u0097\2\u05e8\u05ea\5\u0132\u009a\2\u05e9\u05e3"+
+		"\u05e2\5n8\2\u05e2\u0107\3\2\2\2\u05e3\u05ea\5\u0110\u0089\2\u05e4\u05ea"+
+		"\5\u0118\u008d\2\u05e5\u05ea\5\u011a\u008e\2\u05e6\u05ea\5\u012c\u0097"+
+		"\2\u05e7\u05ea\5\u0132\u009a\2\u05e8\u05ea\5\u010c\u0087\2\u05e9\u05e3"+
 		"\3\2\2\2\u05e9\u05e4\3\2\2\2\u05e9\u05e5\3\2\2\2\u05e9\u05e6\3\2\2\2\u05e9"+
 		"\u05e7\3\2\2\2\u05e9\u05e8\3\2\2\2\u05ea\u0109\3\2\2\2\u05eb\u05f1\5\u010c"+
 		"\u0087\2\u05ec\u05f1\5\u0112\u008a\2\u05ed\u05f1\5\u011c\u008f\2\u05ee"+
