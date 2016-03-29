@@ -107,7 +107,7 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	@Override
 	public void enterExpressionStatement(ExpressionStatementContext statementContext) {
 		
-		// For some reason, assignment statements can be grabbed here after the method has been established.. Might be a bug in antlr/grammar.
+		// It's possible that expressions are nested (for example inside of a method). We don't care about those, really so don't do any processing.
 		if(this.newAction != null) {
 			return;
 		}
@@ -232,10 +232,10 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	 * 
 	 * @return {@link JavaAction} -- the new java action.
 	 */
-	public JavaAction getJavaAction() {
+	public JavaAction getNewAction() {
 		return this.newAction;
 	}
-	
+
 	/**
 	 * Method to determine the identifiers of the given parse tree. Brute force + recursion to see what parse trees
 	 * actually have the "Identifier" method on them, and store their text in a list to be returned.
@@ -319,7 +319,7 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 				
 				// If we have a match, add it.
 				if(JavaInterpreterMaps.getInstance().containsEntry(relevantIdentifer, possibleAction)) {
-					dependentActions.add(JavaInterpreterMaps.getInstance().getEntry(relevantIdentifer, possibleAction));
+					dependentActions.addAll(JavaInterpreterMaps.getInstance().getEntry(relevantIdentifer, possibleAction));
 				}
 			}
 		}

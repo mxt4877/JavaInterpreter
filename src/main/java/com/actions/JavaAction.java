@@ -26,6 +26,11 @@ public abstract class JavaAction {
 	private String rawInput;
 	
 	/**
+	 * The conditional action that we might also need to put into the maps.
+	 */
+	private JavaAction conditionalAction;
+	
+	/**
 	 * Protected constructor to send in the raw input.
 	 * 
 	 * @param rawInput -- the raw input of the user. 
@@ -43,6 +48,15 @@ public abstract class JavaAction {
 	public void setDependentActions(Set<JavaAction> dependentActions) {
 		this.dependentActions = dependentActions;
 	}
+	
+	/**
+	 * Method to add in a dependent action that was not there before.
+	 * 
+	 * @param dependentAction -- the new dependent action.
+	 */
+	public void addDependentAction(JavaAction dependentAction) {
+		this.dependentActions.add(dependentAction);
+	}
 
 	/**
 	 * Getter for the dependent actions.
@@ -50,7 +64,7 @@ public abstract class JavaAction {
 	 * @return A set of the dependent actions.
 	 */
 	public Set<JavaAction> getDependentActions() {
-		return dependentActions;
+		return this.dependentActions;
 	}
 	
 	/**
@@ -68,15 +82,35 @@ public abstract class JavaAction {
 	 * @return {@link ActionType} -- the action type.
 	 */
 	public ActionType getActionType() {
-		return actionType;
+		return this.actionType;
 	}
 	
 	/**
-	 * Method to get the declared name, dependent on each of the subclasses.
+	 * Method to get the conditional action. Returns NULL if no value.
 	 * 
-	 * @return String -- declared name.
+	 * @return {@link JavaAction} -- the conditional action.
 	 */
-	public abstract String getEvaluation();
+	public JavaAction getConditionalAction() {
+		return this.conditionalAction;
+	}
+
+	/**
+	 * Method to set the conditional action.
+	 * 
+	 * @param conditionalAction -- the conditional action.
+	 */
+	public void setConditionalAction(JavaAction conditionalAction) {
+		this.conditionalAction = conditionalAction;
+	}
+
+	/**
+	 * Method to get the name of this action. Default implementation is empty string.
+	 * 
+	 * @return String -- the name of the action.
+	 */
+	public String getName() {
+		return "";
+	}
 	
 	/**
 	 * Method to get the alternate evaluation of a given java action. Default implementation is empty string.
@@ -86,4 +120,11 @@ public abstract class JavaAction {
 	public String getAlternateEvaluation() {
 		return "";
 	}
+	
+	/**
+	 * Method to get the declared name, dependent on each of the subclasses.
+	 * 
+	 * @return String -- declared name.
+	 */
+	public abstract String getEvaluation();
 }

@@ -87,6 +87,12 @@ public class JavaInterpreterCompiler {
 			// If we are successful, put it into the map.
 			JavaInterpreterMaps.getInstance().putEntry(newAction);
 			
+			// Check to see if we need to do anything conditional. This would be, for example, the case where we remove something from a list. Although
+			// it's a dangling expression, we need to be sure we track the action so that further calls make sense.
+			if(newAction.getConditionalAction() != null) {
+				JavaInterpreterMaps.getInstance().putEntry(newAction.getConditionalAction());
+			}
+			
 			// Load up the class again with this class loader.
 			URLClassLoader classLoader = new URLClassLoader(new URL[]{new File(".").toURI().toURL()}, this.getClass().getClassLoader());
 			

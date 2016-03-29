@@ -32,6 +32,11 @@ public class JavaExpression extends JavaAction {
 	public String getExpressionVariable() {
 		return expressionVariable;
 	}
+	
+	@Override
+	public String getName() {
+		return getExpressionVariable();
+	}
 
 	@Override
 	public String getEvaluation() {

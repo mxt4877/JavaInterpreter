@@ -108,7 +108,7 @@ public class JavaInterpreter {
     	walker.walk(listener, parser.compilationUnit());
     	
     	// Get the newly created action from the listener.
-    	return listener.getJavaAction();
+    	return listener.getNewAction();
 	}
 	
 	/**
