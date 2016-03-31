@@ -36,7 +36,12 @@ public class JavaMethod extends JavaAction {
 	}
 	
 	@Override
+	public String getName() {
+		return getMethodName();
+	}
+	
+	@Override
 	public String getEvaluation() {
-		return "\"\t\tResult returned: --> Successfully created " + getMethodName() + ".\"";
+		return "\"\t\tResult returned: --> Successfully created method " + getMethodName() + ".\"";
 	}
 }

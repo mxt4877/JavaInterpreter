@@ -19,6 +19,8 @@ public class InterpreterUtils {
 	private static final List<ActionType> GLOBAL_ACTIONS = new ArrayList<ActionType>() {{
 		add(ActionType.METHOD);
 		add(ActionType.FIELD);
+		add(ActionType.CLASS);
+		add(ActionType.ENUM);
 	}};
 	
 	/**

@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
-import com.actions.JavaExpression;
 import com.actions.JavaField;
 import com.actions.JavaMethod;
 
@@ -22,17 +21,27 @@ public class JavaInterpreterMaps {
 	/**
 	 * Map of variables.
 	 */
-	private Map<String, JavaField> fields = new LinkedHashMap<String, JavaField>();
+	private Map<String, JavaAction> fields = new LinkedHashMap<String, JavaAction>();
 	
 	/**
 	 * Map of methods.
 	 */
-	private Map<String, JavaMethod> methods = new LinkedHashMap<String, JavaMethod>();
+	private Map<String, JavaAction> methods = new LinkedHashMap<String, JavaAction>();
 	
 	/**
 	 * Map of expressions.
 	 */
 	private Map<String, List<JavaAction>> expressions = new LinkedHashMap<String, List<JavaAction>>();
+	
+	/**
+	 * Map of classes.
+	 */
+	private Map<String, JavaAction> classes = new LinkedHashMap<String, JavaAction>();
+	
+	/**
+	 * Map of enums.
+	 */
+	private Map<String, JavaAction> enums = new LinkedHashMap<String, JavaAction>();
 	
 	/**
 	 * Singleton instance.
@@ -68,11 +77,8 @@ public class JavaInterpreterMaps {
 			// Get the field.
 			case FIELD: {
 				
-				// Cast the field.
-				JavaField castField = (JavaField) javaAction;
-				
 				// Now put it back.
-				fields.put(castField.getFieldName(), castField);
+				fields.put(javaAction.getName(), javaAction);
 				
 				break;
 			}
@@ -80,11 +86,8 @@ public class JavaInterpreterMaps {
 			// Get the method.
 			case METHOD: {
 				
-				// Cast the method.
-				JavaMethod castMethod = (JavaMethod) javaAction;
-				
 				// Now put it back.
-				methods.put(castMethod.getMethodName(), castMethod);
+				methods.put(javaAction.getName(), javaAction);
 				
 				break;
 			}
@@ -92,24 +95,39 @@ public class JavaInterpreterMaps {
 			// Get the expression.
 			case EXPRESSION: {
 				
-				// Cast the expression.
-				JavaExpression castExpression = (JavaExpression) javaAction;
-				
 				// Either GET the existing expressions, or CREATE a new list to hold them.
-				List<JavaAction> currentExpressions = expressions.containsKey(castExpression.getExpressionVariable()) 
-																? expressions.get(castExpression.getExpressionVariable()) 
+				List<JavaAction> currentExpressions = expressions.containsKey(javaAction.getName()) 
+																? expressions.get(javaAction.getName()) 
 																	: new LinkedList<JavaAction>();
 
 				// Add this one in.
-				currentExpressions.add(castExpression);
+				currentExpressions.add(javaAction);
 			
 				// Now put it back.
-				expressions.put(castExpression.getExpressionVariable(), currentExpressions);
+				expressions.put(javaAction.getName(), currentExpressions);
 				
 				// Make sure we update any possible references in a method.
 				updateMethodWithNewAction(javaAction);
 				
 				// Now break.
+				break;
+			}
+			
+			// Get the class.
+			case CLASS: {
+				
+				// Add this in.
+				classes.put(javaAction.getName(), javaAction);
+				
+				break;
+			}
+			
+			// Get the class.
+			case ENUM: {
+				
+				// Add this in.
+				enums.put(javaAction.getName(), javaAction);
+				
 				break;
 			}
 			
@@ -143,7 +161,17 @@ public class JavaInterpreterMaps {
 			
 			// Return the expression.
 			case EXPRESSION: {
-				return expressions.containsKey(entryName) ? expressions.get(entryName) : null;
+				return expressions.containsKey(entryName) ? expressions.get(entryName) : Collections.EMPTY_LIST;
+			}
+			
+			// Return the class.
+			case CLASS: {
+				return classes.containsKey(entryName) ? Collections.singletonList(classes.get(entryName)) : Collections.EMPTY_LIST;
+			}
+			
+			// Return the enum.
+			case ENUM: {
+				return enums.containsKey(entryName) ? Collections.singletonList(enums.get(entryName)) : Collections.EMPTY_LIST;
 			}
 			
 			default: {
@@ -177,6 +205,16 @@ public class JavaInterpreterMaps {
 			// Return the expression.
 			case EXPRESSION: {
 				return expressions.containsKey(entryName);
+			}
+			
+			// Return the class.
+			case CLASS: {
+				return classes.containsKey(entryName);
+			}
+			
+			// Return the class.
+			case ENUM: {
+				return enums.containsKey(entryName);
 			}
 			
 			default: {
@@ -214,7 +252,10 @@ public class JavaInterpreterMaps {
 	private void updateMethodWithNewAction(JavaAction newlyCreatedAction) {
 		
 		// Loop through each of the methods.
-		for(JavaMethod javaMethod : methods.values()) {
+		for(JavaAction javaAction : methods.values()) {
+			
+			// Cast it.
+			JavaMethod javaMethod = (JavaMethod) javaAction;
 			
 			// For each of it's dependent actions....
 			for(JavaAction dependentAction : javaMethod.getDependentActions()) {
@@ -230,5 +271,4 @@ public class JavaInterpreterMaps {
 			}
 		}
 	}
-
 }

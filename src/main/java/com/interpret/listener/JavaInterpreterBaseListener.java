@@ -15,18 +15,22 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
+import com.actions.JavaClass;
+import com.actions.JavaEnum;
 import com.actions.JavaLoopOrIfStatement;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
 import com.antlr.Java8Parser.ClassDeclarationContext;
 import com.antlr.Java8Parser.DoStatementContext;
+import com.antlr.Java8Parser.EnumDeclarationContext;
 import com.antlr.Java8Parser.ExpressionStatementContext;
 import com.antlr.Java8Parser.FieldDeclarationContext;
 import com.antlr.Java8Parser.ForStatementContext;
 import com.antlr.Java8Parser.IfThenElseStatementContext;
 import com.antlr.Java8Parser.IfThenStatementContext;
 import com.antlr.Java8Parser.MethodDeclarationContext;
+import com.antlr.Java8Parser.NormalClassDeclarationContext;
 import com.antlr.Java8Parser.WhileStatementContext;
 import com.interpret.JavaInterpreterMaps;
 
@@ -61,6 +65,11 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	@Override
 	public void enterFieldDeclaration(FieldDeclarationContext feildDeclarationContext) {
 		
+		// It's possible that fields are nested (for example inside of a class or method). We don't care about those, really so don't do any processing.
+		if(this.newAction != null) {
+			return;
+		}
+		
 		// Find the relevant dependencies.
 		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(feildDeclarationContext));
 		
@@ -83,6 +92,11 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	
 	@Override
 	public void enterMethodDeclaration(MethodDeclarationContext methodDeclarationContext) {
+		
+		// It's possible that methods are nested (for example inside of a class). We don't care about those, really so don't do any processing.
+		if(this.newAction != null) {
+			return;
+		}
 		
 		// Find the relevant dependencies.
 		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(methodDeclarationContext));
@@ -224,7 +238,26 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	
 	@Override
 	public void enterClassDeclaration(ClassDeclarationContext classDeclarationContext) {
-		System.out.println("Got a class...");
+		
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(classDeclarationContext));
+		
+		// Get the normal class name.
+		NormalClassDeclarationContext normalClass = classDeclarationContext.normalClassDeclaration();
+		
+		// If the normal class is null, then it could be an enum.
+		if(normalClass == null) {
+			EnumDeclarationContext enumClass = classDeclarationContext.enumDeclaration();
+			this.newAction = new JavaEnum(this.rawInput, enumClass.Identifier().getText());
+		}
+		
+		// Pull the class name out here.
+		else {
+			this.newAction = new JavaClass(this.rawInput, normalClass.Identifier().getText());
+		}		
+		
+		// Set the dependent actions.
+		newAction.setDependentActions(dependentActions);
 	}
 	
 	/**
