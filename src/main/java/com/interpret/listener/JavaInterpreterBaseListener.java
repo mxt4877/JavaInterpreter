@@ -31,6 +31,7 @@ import com.antlr.Java8Parser.IfThenElseStatementContext;
 import com.antlr.Java8Parser.IfThenStatementContext;
 import com.antlr.Java8Parser.MethodDeclarationContext;
 import com.antlr.Java8Parser.NormalClassDeclarationContext;
+import com.antlr.Java8Parser.PostIncrementExpressionContext;
 import com.antlr.Java8Parser.WhileStatementContext;
 import com.interpret.JavaInterpreterMaps;
 
@@ -375,6 +376,13 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
     	CommonTokenStream tokenStream = new CommonTokenStream(java8Lexer);
     	
     	// Now return the parser.
-    	return new Java8Parser(tokenStream);
+    	Java8Parser parser = new Java8Parser(tokenStream);
+    	
+    	// Make the parser and lexer be quiet.
+    	parser.removeErrorListeners();
+    	java8Lexer.removeErrorListeners();
+    	
+    	// Now return.
+    	return parser;
 	}
 }

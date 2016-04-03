@@ -80,4 +80,14 @@ public class InterpreterUtils {
 	public static boolean isLoopOrIf(JavaAction javaAction) {
 		return ActionType.LOOP_OR_IF.equals(javaAction.getActionType());
 	}
+	
+	/**
+	 * Return if this is a dangling expression.
+	 * 
+	 * @param javaAction -- the action type.
+	 * @return TRUE if dangling expression, FALSE if not.
+	 */
+	public static boolean isDanglingExpression(JavaAction javaAction) {
+		return ActionType.DANGLING_EXPRESSION.equals(javaAction.getActionType());
+	}
 }

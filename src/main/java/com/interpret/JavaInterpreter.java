@@ -1,6 +1,9 @@
 package com.interpret;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.Stack;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -18,6 +21,31 @@ import com.javasource.InterpreterSuperClass;
  * @author <a href="mailto:mxt4877@g.rit.edu">Mike Thomsen</a>
  */
 public class JavaInterpreter {
+	
+	/**
+	 * Constant for start brace.
+	 */
+	private static final String START_BRACE = "{";
+	
+	/**
+	 * Constant for end brace.
+	 */
+	private static final String END_BRACE = "}";
+	
+	/**
+	 * Constant for start paren.
+	 */
+	private static final String START_PAREN = "(";
+	
+	/**
+	 * Constant for end paren.
+	 */
+	private static final String END_PAREN = ")";
+	
+	/**
+	 * The list of matchable symbols.
+	 */
+	private static final List<String> SYMBOLS = new ArrayList<String>() {{ add(START_BRACE); add(END_BRACE); add(START_PAREN); add(END_PAREN); }};
 	
 	/**
 	 * Main hookpoint for the interpreter.
@@ -46,6 +74,15 @@ public class JavaInterpreter {
         // Keep going forever...
         boolean keepGoing = true;
         
+        // Track the input.
+        StringBuilder inputBuilder = new StringBuilder();
+        
+        // Use a stack to track parens and braces.
+        Stack<String> parensAndBraces = new Stack<String>();
+        
+        // Valid input?
+        boolean validInput = true;
+        
         // Keep accepting input.
         while(keepGoing) {
         	
@@ -54,9 +91,85 @@ public class JavaInterpreter {
         	
         	// Don't do anything if it's not null.
         	if(nextInput != null && ! nextInput.trim().isEmpty()) {
+        		
+        		// Parse through the string, one character at a time searching for open/close parens and braces.
+        		for(int charIndex = 0; charIndex < nextInput.length(); charIndex++) {
+        			
+        			// Grab this character.
+        			String thisChar = String.valueOf(nextInput.charAt(charIndex));
+        			
+        			// Does it have a symbol we care about?
+        			if(SYMBOLS.contains(thisChar)) {
+        				
+        				// Switch on it.
+        				switch(thisChar) {
+        				
+	        				case START_BRACE: {
+	        					parensAndBraces.push(START_BRACE);
+	        					break;
+	        				}
+        				
+	        				case END_BRACE: {
+	        					
+	        					// If we have something other than an end brace, something is wrong.
+	        					if(parensAndBraces.isEmpty() || !START_BRACE.equals(parensAndBraces.peek())) {
+	        						validInput = false;
+	        					}
+	        					
+	        					// Otherwise we are good, pop the brace off.
+	        					else {
+		        					parensAndBraces.pop();
+	        					}
+	        					
+	        					break;
+	        				}
+	        				
+	        				case START_PAREN: {
+	        					parensAndBraces.push(START_PAREN);
+	        					break;
+	        				}
+	        				
+	        				case END_PAREN: {
+	        					
+	        					// If we have something other than an end brace, something is wrong.
+	        					if(parensAndBraces.isEmpty() || !START_PAREN.equals(parensAndBraces.peek())) {
+	        						validInput = false;
+	        					}
+	        					
+	        					// Otherwise we are good, pop the brace off.
+	        					else {
+		        					parensAndBraces.pop();
+	        					}
+	        					
+	        					break;
+	        				}
+        				}
+        			}
+        		}
+
+        		// Always add on the input here.
+    			inputBuilder.append(nextInput);
+        		
+        		JavaAction newlyCreatedAction = null;
+        		
+        		// We might be in the middle of a statement. If we are, go do it again.
+        		if(!parensAndBraces.isEmpty()) {
+        			
+        			// Keep going if we've got valid input. Otherwise, we need to let it die out.
+        			if(validInput) {
+        				continue;
+        			}
+        		}
+        		
+        		// Otherwise, evaluate this statement.
+        		else {
+	        		if(validInput) {
+	        			newlyCreatedAction = parseInput(inputBuilder.toString());
+	        		}
+        		}
         	
+        		// If we've made it this far, parse the input.
         		try {
-        			JavaAction newlyCreatedAction = parseInput(nextInput);
         			
         			// Tell the user we don't understand the input.
     	        	if(newlyCreatedAction == null) {
@@ -72,6 +185,12 @@ public class JavaInterpreter {
         		// Eat any exception here (for now -- need to determine what to do).
         		catch(Exception e) {
         			System.err.println("Statement encountered failure : " + e.getMessage());
+        		}
+
+	        	// Reset the variables, each time we try to evaluate.
+        		finally {
+    	        	validInput = true;
+    	        	inputBuilder = new StringBuilder();
         		}
         	}
         }

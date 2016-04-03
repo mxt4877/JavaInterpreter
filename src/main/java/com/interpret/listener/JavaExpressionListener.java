@@ -6,13 +6,17 @@ import com.actions.JavaDanglingExpression;
 import com.actions.JavaExpression;
 import com.actions.JavaIdentifier;
 import com.antlr.Java8BaseListener;
-import com.antlr.Java8Parser.ArgumentListContext;
 import com.antlr.Java8Parser.AssignmentContext;
+import com.antlr.Java8Parser.ExpressionNameContext;
 import com.antlr.Java8Parser.LeftHandSideContext;
 import com.antlr.Java8Parser.MethodInvocationContext;
 import com.antlr.Java8Parser.MethodInvocation_lfno_primaryContext;
+import com.antlr.Java8Parser.PostDecrementExpressionContext;
+import com.antlr.Java8Parser.PostIncrementExpressionContext;
+import com.antlr.Java8Parser.PostfixExpressionContext;
 import com.antlr.Java8Parser.StatementExpressionContext;
 import com.antlr.Java8Parser.TypeNameContext;
+import com.interpret.InterpreterUtils;
 import com.interpret.JavaInterpreterMaps;
 
 /**
@@ -93,6 +97,50 @@ public class JavaExpressionListener extends Java8BaseListener {
 		if(statementExpression.expression() != null) {
 			this.javaAction = new JavaDanglingExpression(this.rawInput);
 		}
+	}
+	
+	@Override
+	public void enterPostfixExpression(PostfixExpressionContext postFixExpression) {
+		
+		// Process only when it's not null. This is unique because it'll think this is a dangling expression, but it's not, because
+		// the increment operation is really an expression we need to track, not a dangling one.
+		if((this.javaAction != null) && !(InterpreterUtils.isDanglingExpression(this.javaAction))) {
+			return;
+		}
+		
+		// Get the expression name.
+		ExpressionNameContext expressionName = postFixExpression.expressionName();
+
+		// If we have the name, collect it.
+		if(expressionName != null) {
+			this.expressionVariable = expressionName.Identifier().getText();
+		}
+		
+		this.javaAction = new JavaExpression(this.rawInput, expressionVariable);
+	}
+	
+	@Override
+	public void enterPostIncrementExpression(PostIncrementExpressionContext ctx) {
+		
+		// Process only when it's not null. This is unique because it'll think this is a dangling expression, but it's not, because
+		// the increment operation is really an expression we need to track, not a dangling one.
+		if((this.javaAction != null) && !(InterpreterUtils.isDanglingExpression(this.javaAction))) {
+			return;
+		}
+		
+		this.javaAction = new JavaExpression(this.rawInput, expressionVariable);
+	}
+	
+	@Override
+	public void enterPostDecrementExpression(PostDecrementExpressionContext ctx) {
+		
+		// Process only when it's not null. This is unique because it'll think this is a dangling expression, but it's not, because
+		// the increment operation is really an expression we need to track, not a dangling one.
+		if((this.javaAction != null) && !(InterpreterUtils.isDanglingExpression(this.javaAction))) {
+			return;
+		}
+		
+		this.javaAction = new JavaExpression(this.rawInput, expressionVariable);
 	}
 	
 	@Override
