@@ -1,5 +1,8 @@
 package com.javasource;
 
+import java.io.File;
+import java.io.PrintWriter;
+
 /**
  * Abstract class that every 'new' class will extend. We'll assign a random class name to each of the subclasses, but they'll
  * all by default implement the abstract methods.
@@ -56,6 +59,20 @@ public abstract class InterpreterSuperClass {
 	 * @return String -- the text version of a new class.
 	 */
 	public static JavaStringSource generateClass(String globalCode, String localCode) {
-		return new JavaStringSource(String.format(OVERALL_CLASS, globalCode, localCode));
+		String sourceFile = String.format(OVERALL_CLASS, globalCode, localCode);
+		
+		try {
+			File logFile = new File("FILELOG.java");
+			logFile.createNewFile();
+			PrintWriter writer = new PrintWriter(logFile);
+			writer.write(sourceFile);
+			writer.close();
+		}
+		
+		catch(Exception e) {
+			System.err.println("Log file creation failed: " + e);
+		}
+		
+		return new JavaStringSource(sourceFile);
 	}
 }

@@ -185,6 +185,11 @@ public class JavaInterpreter {
         		// Eat any exception here (for now -- need to determine what to do).
         		catch(Exception e) {
         			System.err.println("Statement encountered failure : " + e.getMessage());
+        			
+        			// Print out the underlying error too.
+        			if(e.getCause() != null) {
+        				System.err.println("   " + e.getCause().getMessage());
+        			}
         		}
 
 	        	// Reset the variables, each time we try to evaluate.
