@@ -17,6 +17,7 @@ import com.actions.ActionType;
 import com.actions.JavaAction;
 import com.actions.JavaClass;
 import com.actions.JavaEnum;
+import com.actions.JavaImport;
 import com.actions.JavaLoopOrIfStatement;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Lexer;
@@ -93,7 +94,7 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 	
 	@Override
 	public void enterImportDeclaration(ImportDeclarationContext importDeclaration) {
-		
+		this.newAction = new JavaImport(this.rawInput);
 	}
 	
 	@Override

@@ -61,6 +61,10 @@ public class JavaInterpreterCompiler {
 	 */
 	public InterpreterSuperClass compile(JavaAction newAction, boolean expectReturn) throws MalformedURLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
 		
+		// Get the import statements.
+		StringBuilder importStatements = new StringBuilder();
+		JavaInterpreterMaps.getInstance().getImports().forEach( importStatement -> importStatements.append(importStatement.getRawInput()).append("\n"));
+		
 		// These are the statements that will need to be declared globally.
 		String globalClassStatements = generateGlobalCodeFromDependencies(newAction, new LinkedList<JavaAction>());
 		
@@ -73,7 +77,7 @@ public class JavaInterpreterCompiler {
 		}
 		
 		// Here, we need to figure out local context as well.
-		JavaStringSource source = InterpreterSuperClass.generateClass(globalClassStatements, localClassStatements);
+		JavaStringSource source = InterpreterSuperClass.generateClass(importStatements.toString(), globalClassStatements, localClassStatements);
 		
 		// The diagnostic.
 		JavaInterpreterDiagnosticListener diagListener = new JavaInterpreterDiagnosticListener();

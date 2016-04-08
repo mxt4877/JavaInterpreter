@@ -26,6 +26,7 @@ public abstract class InterpreterSuperClass {
 													 "import java.util.*; \n" +
 													 "import java.math.*; \n" +
 													 "import java.io.*; \n" +
+													 "%s \n" +
 													 "\n\n\n";
 	
 	/**
@@ -58,8 +59,8 @@ public abstract class InterpreterSuperClass {
 	 * @param localCode -- the local, expression-level code.
 	 * @return String -- the text version of a new class.
 	 */
-	public static JavaStringSource generateClass(String globalCode, String localCode) {
-		String sourceFile = String.format(OVERALL_CLASS, globalCode, localCode);
+	public static JavaStringSource generateClass(String importStatements, String globalCode, String localCode) {
+		String sourceFile = String.format(OVERALL_CLASS, importStatements, globalCode, localCode);
 		
 		try {
 			File logFile = new File("FILELOG.java");

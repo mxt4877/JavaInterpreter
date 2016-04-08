@@ -51,6 +51,11 @@ public class JavaInterpreterMaps {
 	private Map<String, JavaAction> enums = new LinkedHashMap<String, JavaAction>();
 	
 	/**
+	 * Map of imports.
+	 */
+	private Map<String, List<JavaAction>> imports = new LinkedHashMap<String, List<JavaAction>>();
+	
+	/**
 	 * Singleton instance.
 	 */
 	private static final JavaInterpreterMaps INSTANCE = new JavaInterpreterMaps();
@@ -59,7 +64,7 @@ public class JavaInterpreterMaps {
 	 * Private no-op constructor for singleton.
 	 */
 	private JavaInterpreterMaps() {
-		;
+		imports.put("IMPORTS", new LinkedList<JavaAction>());
 	}
 
 	/**
@@ -106,7 +111,6 @@ public class JavaInterpreterMaps {
 				List<JavaAction> currentExpressions = expressions.containsKey(javaAction.getName()) 
 																? expressions.get(javaAction.getName()) 
 																	: new LinkedList<JavaAction>();
-
 				// Add this one in.
 				currentExpressions.add(javaAction);
 			
@@ -129,7 +133,7 @@ public class JavaInterpreterMaps {
 				break;
 			}
 			
-			// Get the class.
+			// Get the enum.
 			case ENUM: {
 				
 				// Add this in.
@@ -138,10 +142,35 @@ public class JavaInterpreterMaps {
 				break;
 			}
 			
+			// Get the import.
+			case IMPORT: {
+				
+				// Add this in.
+				// Either GET the existing expressions, or CREATE a new list to hold them.
+				List<JavaAction> currentImports = expressions.containsKey(javaAction.getName()) 
+																? expressions.get(javaAction.getName()) 
+																	: new LinkedList<JavaAction>();
+								
+				// Add this one.
+				currentImports.add(javaAction);
+				
+				// Put it under the key of IMPORTS.
+				imports.put("IMPORTS", currentImports);
+				
+				break;
+			}
+			
 			default: {
 				break;
 			}
 		}
+	}
+	
+	/**
+	 * Method to get the imports.
+	 */
+	public List<JavaAction> getImports() {
+		return this.imports.get("IMPORTS");
 	}
 	
 	/**
@@ -297,19 +326,21 @@ public class JavaInterpreterMaps {
 			throw new RuntimeException("Failed trying to create file!", e);
 		}
 		
-		// The extensions.
-		String fieldExtension = filePrefix + File.separator + "fields.ser";
-		String methodExtension = filePrefix + File.separator + "methods.ser";	
-		String expressionExtension = filePrefix + File.separator + "exprs.ser";
-		String classExtension = filePrefix + File.separator + "classes.ser";
-		String enumExtension = filePrefix + File.separator + "enums.ser";
+		// The files.
+		String fieldFile = filePrefix + File.separator + "fields.ser";
+		String methodFile = filePrefix + File.separator + "methods.ser";	
+		String expressionFile = filePrefix + File.separator + "exprs.ser";
+		String classFile = filePrefix + File.separator + "classes.ser";
+		String enumFile = filePrefix + File.separator + "enums.ser";
+		String importFile = filePrefix + File.separator + "imports.ser";
 		
 		// Serialize all the maps.
-		serialize(fields, fieldExtension);
-		serialize(methods, methodExtension);
-		serialize(expressions, expressionExtension);
-		serialize(classes, classExtension);
-		serialize(enums, enumExtension);
+		serialize(fields, fieldFile);
+		serialize(methods, methodFile);
+		serialize(expressions, expressionFile);
+		serialize(classes, classFile);
+		serialize(enums, enumFile);
+		serialize(imports, importFile);
 	}
 	
 	/**
@@ -353,19 +384,21 @@ public class JavaInterpreterMaps {
 			throw new RuntimeException("Failed deserializing!", e);
 		}
 		
-		// The extensions.
-		String fieldExtension = fullDirectory + File.separator + "fields.ser";
-		String methodExtension = fullDirectory + File.separator + "methods.ser";	
-		String expressionExtension = fullDirectory + File.separator + "exprs.ser";
-		String classExtension = fullDirectory + File.separator + "classes.ser";
-		String enumExtension = fullDirectory + File.separator + "enums.ser";
+		// The Files.
+		String fieldFile = fullDirectory + File.separator + "fields.ser";
+		String methodFile = fullDirectory + File.separator + "methods.ser";	
+		String expressionFile = fullDirectory + File.separator + "exprs.ser";
+		String classFile = fullDirectory + File.separator + "classes.ser";
+		String enumFile = fullDirectory + File.separator + "enums.ser";
+		String importFile = fullDirectory + File.separator + "imports.ser";
 		
 		// Now set the maps to what we deserialized.
-		this.fields = deserialize(fieldExtension);
-		this.methods = deserialize(methodExtension);
-		this.expressions = deserialize(expressionExtension);
-		this.classes = deserialize(classExtension);
-		this.enums = deserialize(enumExtension);
+		this.fields = deserialize(fieldFile);
+		this.methods = deserialize(methodFile);
+		this.expressions = deserialize(expressionFile);
+		this.classes = deserialize(classFile);
+		this.enums = deserialize(enumFile);
+		this.imports = deserialize(importFile);
 	}
 	
 	/**
