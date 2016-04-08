@@ -29,9 +29,9 @@ import com.antlr.Java8Parser.FieldDeclarationContext;
 import com.antlr.Java8Parser.ForStatementContext;
 import com.antlr.Java8Parser.IfThenElseStatementContext;
 import com.antlr.Java8Parser.IfThenStatementContext;
+import com.antlr.Java8Parser.ImportDeclarationContext;
 import com.antlr.Java8Parser.MethodDeclarationContext;
 import com.antlr.Java8Parser.NormalClassDeclarationContext;
-import com.antlr.Java8Parser.PostIncrementExpressionContext;
 import com.antlr.Java8Parser.WhileStatementContext;
 import com.interpret.JavaInterpreterMaps;
 
@@ -89,6 +89,11 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 		
 		// Set the dependent actions.
 		newAction.setDependentActions(dependentActions);
+	}
+	
+	@Override
+	public void enterImportDeclaration(ImportDeclarationContext importDeclaration) {
+		
 	}
 	
 	@Override

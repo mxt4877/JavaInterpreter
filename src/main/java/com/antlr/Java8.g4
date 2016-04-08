@@ -231,6 +231,7 @@ ambiguousName
 compilationUnit
 	:	classBodyDeclaration
 	|	blockStatements
+	|	importDeclaration
 	;
 
 packageDeclaration

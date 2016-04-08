@@ -1,6 +1,13 @@
 package com.interpret;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -269,6 +276,117 @@ public class JavaInterpreterMaps {
 					break;
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Method to serialize maps with date time as the value.
+	 */
+	public void saveBySerialize() {
+		
+		// The root file name.
+		String filePrefix;
+		
+		// Make the directory.
+		try {
+			filePrefix = new File(".").getCanonicalPath() + File.separator + "serialize" + File.separator + new SimpleDateFormat("MM_dd_yyyy_hh_mm_ss").format(new Date());
+			new File(filePrefix).mkdirs();
+		}
+		
+		catch(Exception e) {
+			throw new RuntimeException("Failed trying to create file!", e);
+		}
+		
+		// The extensions.
+		String fieldExtension = filePrefix + File.separator + "fields.ser";
+		String methodExtension = filePrefix + File.separator + "methods.ser";	
+		String expressionExtension = filePrefix + File.separator + "exprs.ser";
+		String classExtension = filePrefix + File.separator + "classes.ser";
+		String enumExtension = filePrefix + File.separator + "enums.ser";
+		
+		// Serialize all the maps.
+		serialize(fields, fieldExtension);
+		serialize(methods, methodExtension);
+		serialize(expressions, expressionExtension);
+		serialize(classes, classExtension);
+		serialize(enums, enumExtension);
+	}
+	
+	/**
+	 * Method to serialize a given map with a given file name.
+	 * 
+	 * @param mapToSerialize -- the map.
+	 * @param serializeFileName -- the serialize name.
+	 */
+	private void serialize(Map mapToSerialize, String serializeFileName) {
+		
+		// Write it to a file.
+		try {
+			ObjectOutputStream objectOutput = new ObjectOutputStream(new FileOutputStream(serializeFileName));
+			objectOutput.writeObject(mapToSerialize);
+			objectOutput.close();
+		}
+
+		// Re-throw if we fail.
+		catch(Exception e) {
+			throw new RuntimeException("Failed writing serialization! Filename : " + serializeFileName, e);
+		}
+	}
+	
+	/**
+	 * Method to load by deserialization.
+	 * 
+	 * @param directoryName -- the directory name.
+	 */
+	public void loadByDeserialize(String directoryName) {
+		
+		// The root directory.
+		String fullDirectory;
+		
+		// Get the full directory.
+		try {
+			fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize" + File.separator + directoryName;
+		}
+		
+		// Re-throw if we fail.
+		catch(Exception e) {
+			throw new RuntimeException("Failed deserializing!", e);
+		}
+		
+		// The extensions.
+		String fieldExtension = fullDirectory + File.separator + "fields.ser";
+		String methodExtension = fullDirectory + File.separator + "methods.ser";	
+		String expressionExtension = fullDirectory + File.separator + "exprs.ser";
+		String classExtension = fullDirectory + File.separator + "classes.ser";
+		String enumExtension = fullDirectory + File.separator + "enums.ser";
+		
+		// Now set the maps to what we deserialized.
+		this.fields = deserialize(fieldExtension);
+		this.methods = deserialize(methodExtension);
+		this.expressions = deserialize(expressionExtension);
+		this.classes = deserialize(classExtension);
+		this.enums = deserialize(enumExtension);
+	}
+	
+	/**
+	 * Method to serialize a given map with a given file name..
+	 *
+	 * @param serializeFileName -- the serialize name.
+	 */
+	private Map deserialize(String serializeFileName) {
+		
+		// Read it from a file.
+		try {
+			FileInputStream mapFile = new FileInputStream(serializeFileName);
+			ObjectInputStream theInputStream = new ObjectInputStream(mapFile);
+			
+			// Read the input stream and map it to a map.
+			return (Map) theInputStream.readObject();
+		}
+
+		// Re-throw if we fail.
+		catch(Exception e) {
+			throw new RuntimeException("Failed writing serialization! Filename : " + serializeFileName, e);
 		}
 	}
 }

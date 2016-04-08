@@ -1,13 +1,15 @@
 package com.interpret.listener;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.File;
+import java.util.Scanner;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
 import com.actions.JavaDanglingExpression;
 import com.actions.JavaExpression;
 import com.actions.JavaIdentifier;
+import com.actions.JavaReservedMethod;
+import com.actions.JavaReservedMethod.ReservedMethods;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Parser.AssignmentContext;
 import com.antlr.Java8Parser.LeftHandSideContext;
@@ -98,7 +100,63 @@ public class JavaExpressionListener extends Java8BaseListener {
 		
 		// An expression can also live by itself, so just grab the text off of it.
 		if(statementExpression.expression() != null) {
+			
+			// This is a dangling expression, so grab it.
 			this.javaAction = new JavaDanglingExpression(this.rawInput);
+			
+			// If it matches the reserve methods.
+			boolean matchesReserved = ReservedMethods.getMethods().stream().anyMatch( reservedMethod -> this.rawInput.startsWith(reservedMethod) );
+			
+			// If this is a reserved method...
+			if(matchesReserved) {
+				
+				// A save?
+				if(this.rawInput.startsWith(ReservedMethods.SAVE.getMethodName())) {
+					JavaInterpreterMaps.getInstance().saveBySerialize();
+					this.javaAction = new JavaReservedMethod(ReservedMethods.SAVE);
+				}
+				
+				// A load?
+				else if(this.rawInput.startsWith(ReservedMethods.LOAD.getMethodName())) {
+					
+					// The root directory.
+					String fullDirectory;
+					
+					// Get the full directory.
+					try {
+						fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize";
+						
+						// This is the drecitory to iterate over.
+						File fullFileDirectory = new File(fullDirectory);
+						
+						// This is the file index, we'll use to get the actual file.
+						int fileIndex = 0;
+						
+						// List all the serialize possibilities.
+						for(File f : fullFileDirectory.listFiles()) {
+							System.out.println(fileIndex++ + " : " + f.getName());
+						}
+						
+						// Load it in.
+						Scanner newScanner = new Scanner(System.in);
+						System.out.println("\n\nSelect a workspace to load:");
+						
+						// Pick the file.
+						int selected = newScanner.nextInt();
+						
+						// Get the file name.
+						JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
+						
+						// Setup the load.
+						this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD);
+					}
+					
+					// Re-throw if we fail.
+					catch(Exception e) {
+						throw new RuntimeException("Failed deserializing!", e);
+					}
+				}
+			}
 		}
 	}
 	

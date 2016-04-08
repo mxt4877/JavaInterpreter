@@ -1,5 +1,6 @@
 package com.actions;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -8,7 +9,7 @@ import java.util.Set;
  * 
  * @author <a href="mailto:mxt4877@rit.edu">Mike Thomsen</a>
  */
-public abstract class JavaAction {
+public abstract class JavaAction implements Serializable {
 	
 	/**
 	 * The actions that this action are dependent on.
