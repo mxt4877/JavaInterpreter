@@ -184,7 +184,7 @@ public class JavaInterpreter {
         		
         		// Eat any exception here (for now -- need to determine what to do).
         		catch(Exception e) {
-        			System.err.println("Statement encountered failure : " + e.getMessage());
+        			System.err.println("Statement encountered failure : " + e);
         			
         			// Print out the underlying error too.
         			if(e.getCause() != null) {
