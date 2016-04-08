@@ -78,7 +78,16 @@ public class JavaExpressionListener extends Java8BaseListener {
 		
 		// Grab the expression name off of the left hand side.
 		if(leftHandSide.expressionName() != null) {
-			expressionVariable = leftHandSide.expressionName().Identifier().getText();
+			
+			// Get the ambigous name if there is one.
+			if(leftHandSide.expressionName().ambiguousName() != null) {
+				expressionVariable = leftHandSide.expressionName().ambiguousName().Identifier().getText();
+			}
+			
+			// If it's not an ambiguous name, get the expression name.
+			else {
+				expressionVariable = leftHandSide.expressionName().Identifier().getText();
+			}
 		}
 		
 		// Otherwise, try and set access on the array.

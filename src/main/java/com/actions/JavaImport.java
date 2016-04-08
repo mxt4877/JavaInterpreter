@@ -18,6 +18,6 @@ public class JavaImport extends JavaAction {
 
 	@Override
 	public String getEvaluation() {
-		return "\"Import statement: " + getRawInput() + " successfully generated and will be included henceforth.\"";
+		return "\"\t\tResult returned: --> Import statement: " + getRawInput() + " successfully generated and will be included henceforth.\"";
 	}
 }
