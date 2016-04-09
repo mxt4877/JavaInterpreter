@@ -1,7 +1,7 @@
 package com.actions;
 
 /**
- * Class that represents a java class, that extends {@link JavaAction}.
+ * Class that represents a java import, that extends {@link JavaAction}.
  *
  * @author <a href="mailto:mxt4877@rit.edu">Mike Thomsen</a>
  */

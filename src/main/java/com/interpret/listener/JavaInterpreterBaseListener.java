@@ -17,11 +17,13 @@ import com.actions.ActionType;
 import com.actions.JavaAction;
 import com.actions.JavaClass;
 import com.actions.JavaEnum;
+import com.actions.JavaException;
 import com.actions.JavaImport;
 import com.actions.JavaLoopOrIfStatement;
 import com.antlr.Java8BaseListener;
 import com.antlr.Java8Lexer;
 import com.antlr.Java8Parser;
+import com.antlr.Java8Parser.CatchClauseContext;
 import com.antlr.Java8Parser.ClassDeclarationContext;
 import com.antlr.Java8Parser.DoStatementContext;
 import com.antlr.Java8Parser.EnumDeclarationContext;
@@ -266,6 +268,30 @@ public class JavaInterpreterBaseListener extends Java8BaseListener {
 		// Set the dependent actions.
 		newAction.setDependentActions(dependentActions);
 	}
+	
+	@Override
+	public void enterCatchClause(CatchClauseContext exceptionContext) {
+		
+		// These should be standalone, so we should never have an action already created.
+		if(this.newAction != null) {
+			return;
+		}
+		
+		// Find the relevant dependencies.
+		Set<JavaAction> dependentActions = getDependentActions(findIdentifiers(exceptionContext));
+		
+		// Get the exception name.
+		String exceptionName = exceptionContext.catchFormalParameter().catchType().getText();
+		
+		// Add it into the exceptions.
+		this.newAction = new JavaException(this.rawInput, exceptionName);
+		
+		// Dependent actions.
+		this.newAction.setDependentActions(dependentActions);
+		
+		// Remove this exception if we're re-defining it.
+		JavaInterpreterMaps.getInstance().removeException(exceptionName);
+	};
 	
 	/**
 	 * Get the java action from the nested listener we created.

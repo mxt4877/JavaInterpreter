@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -54,6 +55,11 @@ public class JavaInterpreterMaps {
 	 * Map of imports.
 	 */
 	private Map<String, List<JavaAction>> imports = new LinkedHashMap<String, List<JavaAction>>();
+	
+	/**
+	 * Map of exceptions.
+	 */
+	private Map<String, JavaAction> exceptions = new LinkedHashMap<String, JavaAction>();
 	
 	/**
 	 * Singleton instance.
@@ -145,17 +151,23 @@ public class JavaInterpreterMaps {
 			// Get the import.
 			case IMPORT: {
 				
-				// Add this in.
 				// Either GET the existing expressions, or CREATE a new list to hold them.
-				List<JavaAction> currentImports = expressions.containsKey(javaAction.getName()) 
-																? expressions.get(javaAction.getName()) 
-																	: new LinkedList<JavaAction>();
+				List<JavaAction> currentImports = imports.get("IMPORTS");
 								
 				// Add this one.
 				currentImports.add(javaAction);
 				
 				// Put it under the key of IMPORTS.
 				imports.put("IMPORTS", currentImports);
+				
+				break;
+			}
+			
+			// Get the exception.
+			case EXCEPTION: {
+				
+				// Put it under the key of IMPORTS.
+				exceptions.put(javaAction.getName(), javaAction);
 				
 				break;
 			}
@@ -171,6 +183,13 @@ public class JavaInterpreterMaps {
 	 */
 	public List<JavaAction> getImports() {
 		return this.imports.get("IMPORTS");
+	}
+	
+	/**
+	 * Method to get the exceptions.
+	 */
+	public Collection<JavaAction> getExceptions() {
+		return this.exceptions.values();
 	}
 	
 	/**
@@ -260,6 +279,24 @@ public class JavaInterpreterMaps {
 	}
 	
 	/**
+	 * Method to remove an exception.
+	 * 
+	 * @param exceptionName -- the exception.
+	 */
+	public boolean removeException(String exceptionName) {
+		
+		// Remove it if we have it.
+		if(exceptions.containsKey(exceptionName)) {
+			return exceptions.remove(exceptionName) != null;
+		}
+		
+		// Couldn't remove? Return false.
+		else {
+			return false;
+		}
+	}
+	
+	/**
 	 * Method that will update the dependencies that might exist for any and all methods. For example, consider this:
 	 * 
 	 * <pre>
@@ -333,6 +370,7 @@ public class JavaInterpreterMaps {
 		String classFile = filePrefix + File.separator + "classes.ser";
 		String enumFile = filePrefix + File.separator + "enums.ser";
 		String importFile = filePrefix + File.separator + "imports.ser";
+		String exceptionFile = filePrefix + File.separator + "exceptions.ser";
 		
 		// Serialize all the maps.
 		serialize(fields, fieldFile);
@@ -341,6 +379,7 @@ public class JavaInterpreterMaps {
 		serialize(classes, classFile);
 		serialize(enums, enumFile);
 		serialize(imports, importFile);
+		serialize(exceptions, exceptionFile);
 	}
 	
 	/**
@@ -391,6 +430,7 @@ public class JavaInterpreterMaps {
 		String classFile = fullDirectory + File.separator + "classes.ser";
 		String enumFile = fullDirectory + File.separator + "enums.ser";
 		String importFile = fullDirectory + File.separator + "imports.ser";
+		String exceptionFile = fullDirectory + File.separator + "exceptions.ser";
 		
 		// Now set the maps to what we deserialized.
 		this.fields = deserialize(fieldFile);
@@ -399,10 +439,11 @@ public class JavaInterpreterMaps {
 		this.classes = deserialize(classFile);
 		this.enums = deserialize(enumFile);
 		this.imports = deserialize(importFile);
+		this.exceptions = deserialize(exceptionFile);
 	}
 	
 	/**
-	 * Method to serialize a given map with a given file name..
+	 * Method to serialize a given map with a given file name.
 	 *
 	 * @param serializeFileName -- the serialize name.
 	 */

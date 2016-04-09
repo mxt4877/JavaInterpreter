@@ -232,6 +232,7 @@ compilationUnit
 	:	classBodyDeclaration
 	|	blockStatements
 	|	importDeclaration
+	|	catchClause
 	;
 
 packageDeclaration

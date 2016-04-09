@@ -65,6 +65,10 @@ public class JavaInterpreterCompiler {
 		StringBuilder importStatements = new StringBuilder();
 		JavaInterpreterMaps.getInstance().getImports().forEach( importStatement -> importStatements.append(importStatement.getRawInput()).append("\n"));
 		
+		// Get the exception statements.
+		StringBuilder exceptionStatements = new StringBuilder();
+		JavaInterpreterMaps.getInstance().getExceptions().forEach( exceptionStatement -> exceptionStatements.append(exceptionStatement.getRawInput()).append("\n"));
+		
 		// These are the statements that will need to be declared globally.
 		String globalClassStatements = generateGlobalCodeFromDependencies(newAction, new LinkedList<JavaAction>());
 		
@@ -77,7 +81,7 @@ public class JavaInterpreterCompiler {
 		}
 		
 		// Here, we need to figure out local context as well.
-		JavaStringSource source = InterpreterSuperClass.generateClass(importStatements.toString(), globalClassStatements, localClassStatements);
+		JavaStringSource source = InterpreterSuperClass.generateClass(importStatements.toString(), globalClassStatements, localClassStatements, exceptionStatements.toString());
 		
 		// The diagnostic.
 		JavaInterpreterDiagnosticListener diagListener = new JavaInterpreterDiagnosticListener();

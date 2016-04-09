@@ -25,12 +25,17 @@ public class JavaReservedMethod extends JavaAction {
 		/**
 		 * The save operation.
 		 */
-		SAVE("save"),
+		SAVE("save", ""),
 		
 		/**
 		 * The load operation.
 		 */
-		LOAD("load");
+		LOAD("load", "The load operation failed."),
+		
+		/**
+		 * The uncatch method.
+		 */
+		UNCATCH("uncatch", "This exception could not be uncaught -- it may have already been uncaught. This is not a failure, but an informational message.");
 		
 		/**
 		 * The method name.
@@ -38,12 +43,18 @@ public class JavaReservedMethod extends JavaAction {
 		private String methodName;
 		
 		/**
+		 * The failure message.
+		 */
+		private String failureMessage;
+		
+		/**
 		 * The constructor to set the method name.
 		 * 
 		 * @param methodName -- the method name.
 		 */
-		private ReservedMethods(String methodName) {
+		private ReservedMethods(String methodName, String failureMessage) {
 			this.methodName = methodName;
+			this.failureMessage = failureMessage;
 			theMethods.add(this.methodName);
 		}
 		
@@ -64,19 +75,34 @@ public class JavaReservedMethod extends JavaAction {
 		public String getMethodName() {
 			return this.methodName;
 		}
+		
+		/**
+		 * Method to get the failure message.
+		 * 
+		 * @return String -- the failure message.
+		 */
+		public String getFailureMessage() {
+			return this.failureMessage;
+		}
 	}
 	
 	/**
 	 * The action we need to spit to the console.
 	 */
 	private ReservedMethods method;
+	
+	/**
+	 * Was it sucessful?
+	 */
+	private boolean success = true;
 
 	/**
 	 * Constructor to do nothing but specify that it's a reserved method.
 	 */
-	public JavaReservedMethod(ReservedMethods method) {
+	public JavaReservedMethod(ReservedMethods method, boolean success) {
 		super("", ActionType.RESERVED_METHOD);
 		this.method = method;
+		this.success = success;
 	}
 	
 	/**
@@ -90,6 +116,12 @@ public class JavaReservedMethod extends JavaAction {
 
 	@Override
 	public String getEvaluation() {
-		return "\"\t\tResult returned: --> " + this.method.getMethodName().toUpperCase() + " complete!\"";
+		String returnValue = "\"\t\tResult returned: --> " + this.method.getMethodName().toUpperCase() + " complete!\"";
+		
+		if(!success) {
+			returnValue = "\"\t\tResult returned: --> " + this.method.getFailureMessage() + "\"";
+		}
+		
+		return returnValue;
 	}
 }

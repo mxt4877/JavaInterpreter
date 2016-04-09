@@ -44,7 +44,13 @@ public abstract class InterpreterSuperClass {
 	 */
 	private static final String EXPRESSION_METHOD_STRING = "\t@Override\n" +
 		"\tpublic Object evaluate() throws Exception {\n" +
+			"\t\ttry {\n" +
+			"\t\t\t%s\n" +
+			"\t\t}\n" +
 			"\t\t%s\n" +
+			"\t\tfinally {\n" +
+			"\t\t\n" +
+			"\t\t}\n" +
 		"\t}\n";
 	
 	/**
@@ -59,9 +65,20 @@ public abstract class InterpreterSuperClass {
 	 * @param localCode -- the local, expression-level code.
 	 * @return String -- the text version of a new class.
 	 */
-	public static JavaStringSource generateClass(String importStatements, String globalCode, String localCode) {
-		String sourceFile = String.format(OVERALL_CLASS, importStatements, globalCode, localCode);
+	public static JavaStringSource generateClass(String importStatements, String globalCode, String localCode, String exceptionStatements) {		
+		String sourceFile = String.format(OVERALL_CLASS, importStatements, globalCode, localCode, exceptionStatements);
+		log(sourceFile);
+		return new JavaStringSource(sourceFile);
+	}
+	
+	/**
+	 * Print the source file to a log file.
+	 * 
+	 * @param sourceFile -- the source file as a string.
+	 */
+	private static void log(String sourceFile) {
 		
+		// Try to log it here.
 		try {
 			File logFile = new File("FILELOG.java");
 			logFile.createNewFile();
@@ -73,7 +90,5 @@ public abstract class InterpreterSuperClass {
 		catch(Exception e) {
 			System.err.println("Log file creation failed: " + e);
 		}
-		
-		return new JavaStringSource(sourceFile);
 	}
 }

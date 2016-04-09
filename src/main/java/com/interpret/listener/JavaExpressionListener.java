@@ -2,6 +2,8 @@ package com.interpret.listener;
 
 import java.io.File;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
@@ -122,7 +124,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 				// A save?
 				if(this.rawInput.startsWith(ReservedMethods.SAVE.getMethodName())) {
 					JavaInterpreterMaps.getInstance().saveBySerialize();
-					this.javaAction = new JavaReservedMethod(ReservedMethods.SAVE);
+					this.javaAction = new JavaReservedMethod(ReservedMethods.SAVE, true);
 				}
 				
 				// A load?
@@ -157,12 +159,46 @@ public class JavaExpressionListener extends Java8BaseListener {
 						JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
 						
 						// Setup the load.
-						this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD);
+						this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, true);
 					}
 					
 					// Re-throw if we fail.
 					catch(Exception e) {
-						throw new RuntimeException("Failed deserializing!", e);
+						System.err.println("Failed loading!" + e);
+						this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, false);
+					}
+				}
+				
+				// Uncatch an exception.
+				else if(this.rawInput.startsWith(ReservedMethods.UNCATCH.getMethodName())) {
+					
+					// Try to gather out the exception.
+					Pattern parenPattern = Pattern.compile("uncatch[(](.*)[)];");
+					Matcher matcher = parenPattern.matcher(this.rawInput);
+					
+					// Count the matches.
+					int matchCount = 0;
+					
+					// If we matched, tally the total.
+					while(matcher.find()) {
+						matchCount++;
+					}
+					
+					// If we have one match, we match our method signature.
+					if(matchCount == 1) {
+						
+						// Redo this...
+						matcher = parenPattern.matcher(this.rawInput);
+						matcher.matches();
+						
+						// Get the exception and 'uncatch' it.
+						String exceptionName = matcher.group(1);
+						
+						// Setup the uncatch if we removed.
+						boolean removedSuccessfully = JavaInterpreterMaps.getInstance().removeException(exceptionName);
+						
+						// Set up the java action.
+						this.javaAction = new JavaReservedMethod(ReservedMethods.UNCATCH, removedSuccessfully);
 					}
 				}
 			}
