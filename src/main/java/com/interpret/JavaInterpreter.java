@@ -86,6 +86,9 @@ public class JavaInterpreter {
         // Keep accepting input.
         while(keepGoing) {
         	
+        	// Prompt.
+        	System.out.print("--> ");
+        	
         	// Grab the next input here.
         	String nextInput = theScanner.nextLine();
         	
