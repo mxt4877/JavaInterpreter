@@ -40,6 +40,19 @@ public class JavaField extends JavaAction {
 	}
 	
 	@Override
+	public boolean equals(Object otherField) {
+		
+		// Check the names.
+		if(otherField instanceof JavaField) {
+			return ((JavaField)otherField).getName().equals(this.getName());
+		}
+		
+		else {
+			return false;
+		}
+	}
+	
+	@Override
 	public String getEvaluation() {
 		return "\"\t\tResult returned: --> " + getFieldName() + " = \" + " + getFieldName();
 	}

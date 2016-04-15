@@ -35,7 +35,12 @@ public class JavaReservedMethod extends JavaAction {
 		/**
 		 * The uncatch method.
 		 */
-		UNCATCH("uncatch", "This exception could not be uncaught -- it may have already been uncaught. This is not a failure, but an informational message.");
+		UNCATCH("uncatch", "This exception could not be uncaught -- it may have already been uncaught. This is not a failure, but an informational message."),
+		
+		/**
+		 * The clear saves method.
+		 */
+		CLEAR_SAVES("clearSaves", "Saves could not be removed.");
 		
 		/**
 		 * The method name.

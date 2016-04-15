@@ -252,7 +252,7 @@ public class JavaInterpreter {
     	
     	// The class will be null if the compile failed.
     	if(superClass != null) {
-    		System.out.println(superClass.evaluate() + "\n\n");
+    		System.out.println(superClass.evaluate() + "\n");
     	}
 	}
 }

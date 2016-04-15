@@ -1,8 +1,5 @@
 package com.actions;
 
-import com.actions.ActionType;
-import com.actions.JavaAction;
-
 /**
  * Class that represents a java class, that extends {@link JavaAction}.
  *
@@ -34,6 +31,19 @@ public class JavaClass extends JavaAction {
 	 */
 	public String getClassName() {
 		return this.className;
+	}
+	
+	@Override
+	public boolean equals(Object otherClass) {
+		
+		// Check the names.
+		if(otherClass instanceof JavaClass) {
+			return ((JavaClass)otherClass).getName().equals(this.getName());
+		}
+		
+		else {
+			return false;
+		}
 	}
 	
 	@Override

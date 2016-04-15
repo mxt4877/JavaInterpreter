@@ -158,6 +158,15 @@ public class JavaExpressionListener extends Java8BaseListener {
 						// Get the file name.
 						JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
 						
+						// Delete the class files.
+						for(String currentDirectoryFile : new File(".").list()) {
+							
+							// Wipe out the class files when we load.
+							if(currentDirectoryFile.endsWith(".class")) {
+								new File(currentDirectoryFile).delete();
+							}
+						}
+						
 						// Setup the load.
 						this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, true);
 					}
@@ -199,6 +208,33 @@ public class JavaExpressionListener extends Java8BaseListener {
 						
 						// Set up the java action.
 						this.javaAction = new JavaReservedMethod(ReservedMethods.UNCATCH, removedSuccessfully);
+					}
+				}
+				
+				// Delete the old saves.
+				else if(this.rawInput.startsWith(ReservedMethods.CLEAR_SAVES.getMethodName())) {
+					try {
+						String fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize";
+						
+						// Delete the old saves.
+						for(File oldSave : new File(fullDirectory).listFiles()) {
+							
+							// Recurse.
+							for(File oldSerialize : oldSave.listFiles()) {
+								oldSerialize.delete();
+							}
+							
+							// Now delete the directory.
+							oldSave.delete();
+						}
+						
+						// Setup the load.
+						this.javaAction = new JavaReservedMethod(ReservedMethods.CLEAR_SAVES, true);
+					}
+					
+					catch(Exception e) {
+						System.err.println("Failed clearing saves! " + e);
+						this.javaAction = new JavaReservedMethod(ReservedMethods.CLEAR_SAVES, false);
 					}
 				}
 			}
