@@ -67,7 +67,7 @@ public class JavaInterpreterCompiler {
 		
 		// Get the exception statements.
 		StringBuilder exceptionStatements = new StringBuilder();
-		JavaInterpreterMaps.getInstance().getExceptions().forEach( exceptionStatement -> exceptionStatements.append(exceptionStatement.getRawInput()).append("\n"));
+		JavaInterpreterMaps.getInstance().getExceptions().forEach( exceptionStatement -> exceptionStatements.append(exceptionStatement.getRawInput().replace("}", " return \"\";}")).append("\n"));
 		
 		// These are the statements that will need to be declared globally.
 		String globalClassStatements = generateGlobalCodeFromDependencies(newAction, new LinkedList<JavaAction>());
