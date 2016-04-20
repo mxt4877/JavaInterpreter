@@ -40,7 +40,12 @@ public class JavaReservedMethod extends JavaAction {
 		/**
 		 * The clear saves method.
 		 */
-		CLEAR_SAVES("clearSaves", "Saves could not be removed.");
+		CLEAR_SAVES("clearSaves", "Saves could not be removed."),
+		
+		/**
+		 * The exit method.
+		 */
+		EXIT("exit", "");
 		
 		/**
 		 * The method name.

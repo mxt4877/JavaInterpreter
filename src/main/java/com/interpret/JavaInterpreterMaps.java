@@ -16,6 +16,7 @@ import java.util.Map;
 
 import com.actions.ActionType;
 import com.actions.JavaAction;
+import com.actions.JavaExpression;
 import com.actions.JavaField;
 import com.actions.JavaMethod;
 
@@ -346,16 +347,25 @@ public class JavaInterpreterMaps {
 	}
 	
 	/**
-	 * Method to serialize maps with date time as the value.
+	 * Serialize maps with the default date/time.
 	 */
 	public void saveBySerialize() {
+		saveBySerialize(new SimpleDateFormat("MM_dd_yyyy_hh_mm_ss").format(new Date()));
+	}
+	
+	/**
+	 * Save through serialize with a given folder name.
+	 * 
+	 * @param serializeFolder -- the folder name.
+	 */
+	public void saveBySerialize(String serializeFolder) {
 		
 		// The root file name.
 		String filePrefix;
 		
 		// Make the directory.
 		try {
-			filePrefix = new File(".").getCanonicalPath() + File.separator + "serialize" + File.separator + new SimpleDateFormat("MM_dd_yyyy_hh_mm_ss").format(new Date());
+			filePrefix = new File(".").getCanonicalPath() + File.separator + "serialize" + File.separator + serializeFolder;
 			new File(filePrefix).mkdirs();
 		}
 		
@@ -462,5 +472,50 @@ public class JavaInterpreterMaps {
 		catch(Exception e) {
 			throw new RuntimeException("Failed writing serialization! Filename : " + serializeFileName, e);
 		}
+	}
+	
+	/**
+	 * Method to get the value of a given variable.
+	 * 
+	 * @param variableName -- the variable.
+	 * @return String -- the value of the variable.
+	 */
+	public String getValueOfVariable(String variableName) {
+		
+		// What we will try to return.
+		String mostRecentValue = "";
+		
+		// The action to get the data off of.
+		JavaAction theAction = null;
+		
+		// Get the variable now.
+		if(containsEntry(variableName, ActionType.FIELD)) {
+			
+			// If we have expressions, these will be most recent.
+			if(containsEntry(variableName, ActionType.EXPRESSION)) {
+				List<JavaAction> theActualExpressions = expressions.get(variableName);
+				
+				// Get the last one because we know it's a linked list.
+				theAction = (JavaExpression) theActualExpressions.get(theActualExpressions.size());
+			}
+			
+			// Otherwise, just get the value.
+			else {
+				theAction = fields.get(variableName);
+			}
+		}
+		
+		// We might just have a normal save with a name here, not a variable.
+		if(theAction != null) {
+		
+			// The raw input.
+			String rawInput = theAction.getRawInput();
+			
+			// Parse out the value, after the index of the equals sign.
+			mostRecentValue = rawInput.substring(rawInput.indexOf("=") + 1).replaceAll(";", "").replaceAll("\"", "").trim();
+		}
+		
+		// Return the value we found.
+		return mostRecentValue;
 	}
 }

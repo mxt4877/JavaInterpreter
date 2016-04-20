@@ -120,124 +120,217 @@ public class JavaExpressionListener extends Java8BaseListener {
 			
 			// If this is a reserved method...
 			if(matchesReserved) {
-				
+
 				// A save?
 				if(this.rawInput.startsWith(ReservedMethods.SAVE.getMethodName())) {
-					JavaInterpreterMaps.getInstance().saveBySerialize();
-					this.javaAction = new JavaReservedMethod(ReservedMethods.SAVE, true);
+					doReservedSave();
 				}
 				
 				// A load?
 				else if(this.rawInput.startsWith(ReservedMethods.LOAD.getMethodName())) {
-					
-					// The root directory.
-					String fullDirectory;
-					
-					// Get the full directory.
-					try {
-						fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize";
-						
-						// This is the drecitory to iterate over.
-						File fullFileDirectory = new File(fullDirectory);
-						
-						// This is the file index, we'll use to get the actual file.
-						int fileIndex = 0;
-						
-						// List all the serialize possibilities.
-						for(File f : fullFileDirectory.listFiles()) {
-							System.out.println(fileIndex++ + " : " + f.getName());
-						}
-						
-						// Load it in.
-						Scanner newScanner = new Scanner(System.in);
-						System.out.println("\n\nSelect a workspace to load:");
-						
-						// Pick the file.
-						int selected = newScanner.nextInt();
-						
-						// Get the file name.
-						JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
-						
-						// Delete the class files.
-						for(String currentDirectoryFile : new File(".").list()) {
-							
-							// Wipe out the class files when we load.
-							if(currentDirectoryFile.endsWith(".class")) {
-								new File(currentDirectoryFile).delete();
-							}
-						}
-						
-						// Setup the load.
-						this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, true);
-					}
-					
-					// Re-throw if we fail.
-					catch(Exception e) {
-						System.err.println("Failed loading!" + e);
-						this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, false);
-					}
+					doReservedLoad();
 				}
 				
-				// Uncatch an exception.
+				// Uncatch?
 				else if(this.rawInput.startsWith(ReservedMethods.UNCATCH.getMethodName())) {
-					
-					// Try to gather out the exception.
-					Pattern parenPattern = Pattern.compile("uncatch[(](.*)[)];");
-					Matcher matcher = parenPattern.matcher(this.rawInput);
-					
-					// Count the matches.
-					int matchCount = 0;
-					
-					// If we matched, tally the total.
-					while(matcher.find()) {
-						matchCount++;
-					}
-					
-					// If we have one match, we match our method signature.
-					if(matchCount == 1) {
-						
-						// Redo this...
-						matcher = parenPattern.matcher(this.rawInput);
-						matcher.matches();
-						
-						// Get the exception and 'uncatch' it.
-						String exceptionName = matcher.group(1);
-						
-						// Setup the uncatch if we removed.
-						boolean removedSuccessfully = JavaInterpreterMaps.getInstance().removeException(exceptionName);
-						
-						// Set up the java action.
-						this.javaAction = new JavaReservedMethod(ReservedMethods.UNCATCH, removedSuccessfully);
-					}
+					doReservedUncatch();
 				}
 				
-				// Delete the old saves.
+				// Clear saves?
 				else if(this.rawInput.startsWith(ReservedMethods.CLEAR_SAVES.getMethodName())) {
-					try {
-						String fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize";
-						
-						// Delete the old saves.
-						for(File oldSave : new File(fullDirectory).listFiles()) {
-							
-							// Recurse.
-							for(File oldSerialize : oldSave.listFiles()) {
-								oldSerialize.delete();
-							}
-							
-							// Now delete the directory.
-							oldSave.delete();
-						}
-						
-						// Setup the load.
-						this.javaAction = new JavaReservedMethod(ReservedMethods.CLEAR_SAVES, true);
-					}
-					
-					catch(Exception e) {
-						System.err.println("Failed clearing saves! " + e);
-						this.javaAction = new JavaReservedMethod(ReservedMethods.CLEAR_SAVES, false);
-					}
+					doReservedClearSaves();
+				}
+				
+				// Exit?
+				else if(this.rawInput.startsWith(ReservedMethods.EXIT.getMethodName())) {
+					System.exit(0);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Method to do the save method from a reserved method name match.
+	 */
+	private void doReservedSave() {
+		
+		// Try to gather out the exception.
+		Pattern parenPattern = Pattern.compile("save[(](.*)[)];");
+		Matcher matcher = parenPattern.matcher(this.rawInput);
+		
+		// Count the matches.
+		int matchCount = 0;
+		
+		// If we matched, tally the total.
+		while(matcher.find()) {
+			matchCount++;
+		}
+		
+		// If we have one match, we match our method signature.
+		if(matchCount == 1) {
+			
+			// Redo this...
+			matcher = parenPattern.matcher(this.rawInput);
+			matcher.matches();
+			
+			// Get the exception and 'uncatch' it.
+			String variableName = matcher.group(1);
+			
+			// Try to get the variable name here.
+			String variableValue = JavaInterpreterMaps.getInstance().getValueOfVariable(variableName);
+			
+			// Try to get the most recent variable.
+			if(variableValue != null && !variableValue.trim().isEmpty()) {
+				JavaInterpreterMaps.getInstance().saveBySerialize(variableValue);
+				this.javaAction = new JavaReservedMethod(ReservedMethods.SAVE, true);
+			}
+			
+			// Otherwise, if no variable, then save the name we specified.
+			else {
+				JavaInterpreterMaps.getInstance().saveBySerialize(variableName);
+				this.javaAction = new JavaReservedMethod(ReservedMethods.SAVE, true);
+			}
+		}
+		
+		// Otherwise save without parameters.
+		else {
+			doReservedSaveWithoutParameters();
+		}
+	}
+	
+	/**
+	 * Method to do the save, with no parameters.
+	 */
+	private void doReservedSaveWithoutParameters() {
+		JavaInterpreterMaps.getInstance().saveBySerialize();
+		this.javaAction = new JavaReservedMethod(ReservedMethods.SAVE, true);
+	}
+	
+	/**
+	 * Method to do the load method from a reserved method name match.
+	 */
+	private void doReservedLoad() {
+		
+		// The root directory.
+		String fullDirectory;
+		
+		// Get the full directory.
+		try {
+			fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize";
+			
+			// This is the drecitory to iterate over.
+			File fullFileDirectory = new File(fullDirectory);
+			
+			// Don't do anything if there's nothing to load.
+			if(fullFileDirectory.listFiles() != null && fullFileDirectory.listFiles().length > 0) {
+				
+				// This is the file index, we'll use to get the actual file.
+				int fileIndex = 0;
+				
+				// List all the serialize possibilities.
+				for(File f : fullFileDirectory.listFiles()) {
+					System.out.println(fileIndex++ + " : " + f.getName());
+				}
+				
+				// Load it in.
+				Scanner newScanner = new Scanner(System.in);
+				System.out.println("\n\nSelect a workspace to load:");
+				
+				// Pick the file.
+				int selected = newScanner.nextInt();
+				
+				// Get the file name.
+				JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
+				
+				// Delete the class files.
+				for(String currentDirectoryFile : new File(".").list()) {
+					
+					// Wipe out the class files when we load.
+					if(currentDirectoryFile.endsWith(".class")) {
+						new File(currentDirectoryFile).delete();
+					}
+				}
+				
+				// Setup the load.
+				this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, true);
+			}
+			
+			// If there's nothing to load, say so.
+			else {
+				System.out.println("No workspaces available to load.");
+				this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, true);
+			}
+		}
+		
+		// Re-throw if we fail.
+		catch(Exception e) {
+			System.err.println("Failed loading!" + e);
+			this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, false);
+		}
+	}
+	
+	/**
+	 * Method to do the uncatch method from a reserved method name match.
+	 */
+	private void doReservedUncatch() {
+			
+		// Try to gather out the exception.
+		Pattern parenPattern = Pattern.compile("uncatch[(](.*)[)];");
+		Matcher matcher = parenPattern.matcher(this.rawInput);
+		
+		// Count the matches.
+		int matchCount = 0;
+		
+		// If we matched, tally the total.
+		while(matcher.find()) {
+			matchCount++;
+		}
+		
+		// If we have one match, we match our method signature.
+		if(matchCount == 1) {
+			
+			// Redo this...
+			matcher = parenPattern.matcher(this.rawInput);
+			matcher.matches();
+			
+			// Get the exception and 'uncatch' it.
+			String exceptionName = matcher.group(1);
+			
+			// Setup the uncatch if we removed.
+			boolean removedSuccessfully = JavaInterpreterMaps.getInstance().removeException(exceptionName);
+			
+			// Set up the java action.
+			this.javaAction = new JavaReservedMethod(ReservedMethods.UNCATCH, removedSuccessfully);
+		}
+	}
+	
+	/**
+	 * Method to do the clear saves method from a reserved method name match.
+	 */
+	private void doReservedClearSaves() {
+			
+		try {
+			String fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize";
+			
+			// Delete the old saves.
+			for(File oldSave : new File(fullDirectory).listFiles()) {
+				
+				// Recurse.
+				for(File oldSerialize : oldSave.listFiles()) {
+					oldSerialize.delete();
+				}
+				
+				// Now delete the directory.
+				oldSave.delete();
+			}
+			
+			// Setup the load.
+			this.javaAction = new JavaReservedMethod(ReservedMethods.CLEAR_SAVES, true);
+		}
+		
+		catch(Exception e) {
+			System.err.println("Failed clearing saves! " + e);
+			this.javaAction = new JavaReservedMethod(ReservedMethods.CLEAR_SAVES, false);
 		}
 	}
 	
