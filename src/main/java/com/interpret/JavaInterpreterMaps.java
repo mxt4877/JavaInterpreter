@@ -418,7 +418,7 @@ public class JavaInterpreterMaps {
 	 * 
 	 * @param directoryName -- the directory name.
 	 */
-	public void loadByDeserialize(String directoryName) {
+	public boolean loadByDeserialize(String directoryName) {
 		
 		// The root directory.
 		String fullDirectory;
@@ -426,6 +426,11 @@ public class JavaInterpreterMaps {
 		// Get the full directory.
 		try {
 			fullDirectory = new File(".").getCanonicalPath() + File.separator + "serialize" + File.separator + directoryName;
+			
+			// Validate it here.
+			if(!new File(fullDirectory).exists() || !new File(fullDirectory).isDirectory()) {
+				return false;
+			}
 		}
 		
 		// Re-throw if we fail.
@@ -450,6 +455,9 @@ public class JavaInterpreterMaps {
 		this.enums = deserialize(enumFile);
 		this.imports = deserialize(importFile);
 		this.exceptions = deserialize(exceptionFile);
+		
+		// If we made it here, we're good.
+		return true;
 	}
 	
 	/**
@@ -496,7 +504,7 @@ public class JavaInterpreterMaps {
 				List<JavaAction> theActualExpressions = expressions.get(variableName);
 				
 				// Get the last one because we know it's a linked list.
-				theAction = (JavaExpression) theActualExpressions.get(theActualExpressions.size());
+				theAction = (JavaExpression) theActualExpressions.get(theActualExpressions.size() - 1);
 			}
 			
 			// Otherwise, just get the value.

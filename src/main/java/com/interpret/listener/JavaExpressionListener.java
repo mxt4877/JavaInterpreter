@@ -155,7 +155,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 	private void doReservedSave() {
 		
 		// Try to gather out the exception.
-		Pattern parenPattern = Pattern.compile("save[(](.*)[)];");
+		Pattern parenPattern = Pattern.compile("save[(](.+)[)];");
 		Matcher matcher = parenPattern.matcher(this.rawInput);
 		
 		// Count the matches.
@@ -211,6 +211,55 @@ public class JavaExpressionListener extends Java8BaseListener {
 	 */
 	private void doReservedLoad() {
 		
+		// Try to gather out the exception.
+		Pattern parenPattern = Pattern.compile("load[(](.+)[)];");
+		Matcher matcher = parenPattern.matcher(this.rawInput);
+		
+		// Count the matches.
+		int matchCount = 0;
+		
+		// If we matched, tally the total.
+		while(matcher.find()) {
+			matchCount++;
+		}
+		
+		// If we have one match, we match our method signature.
+		if(matchCount == 1) {
+			
+			// Redo this...
+			matcher = parenPattern.matcher(this.rawInput);
+			matcher.matches();
+			
+			// Get the exception and 'uncatch' it.
+			String variableName = matcher.group(1);
+			
+			// Try to get the variable name here.
+			String variableValue = JavaInterpreterMaps.getInstance().getValueOfVariable(variableName);
+			
+			// Try to get the most recent variable.
+			if(variableValue != null && !variableValue.trim().isEmpty()) {
+				boolean success = JavaInterpreterMaps.getInstance().loadByDeserialize(variableValue);
+				this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, success);
+			}
+			
+			// Otherwise, if no variable, then save the name we specified.
+			else {
+				boolean success = JavaInterpreterMaps.getInstance().loadByDeserialize(variableName);
+				this.javaAction = new JavaReservedMethod(ReservedMethods.LOAD, success);
+			}
+		}
+		
+		// Otherwise save without parameters.
+		else {
+			loadByUserInput();
+		}
+	}
+	
+	/**
+	 * Method to load via user input from the console.
+	 */
+	private void loadByUserInput() {
+		
 		// The root directory.
 		String fullDirectory;
 		
@@ -227,6 +276,8 @@ public class JavaExpressionListener extends Java8BaseListener {
 				// This is the file index, we'll use to get the actual file.
 				int fileIndex = 0;
 				
+				System.out.println(fileIndex++ + " : " + "Just looking, don't load anything.");
+				
 				// List all the serialize possibilities.
 				for(File f : fullFileDirectory.listFiles()) {
 					System.out.println(fileIndex++ + " : " + f.getName());
@@ -239,15 +290,19 @@ public class JavaExpressionListener extends Java8BaseListener {
 				// Pick the file.
 				int selected = newScanner.nextInt();
 				
-				// Get the file name.
-				JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
+				// The zero choice is just to look, don't do a thing.
+				if(selected > 0) {
 				
-				// Delete the class files.
-				for(String currentDirectoryFile : new File(".").list()) {
+					// Get the file name.
+					JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
 					
-					// Wipe out the class files when we load.
-					if(currentDirectoryFile.endsWith(".class")) {
-						new File(currentDirectoryFile).delete();
+					// Delete the class files.
+					for(String currentDirectoryFile : new File(".").list()) {
+						
+						// Wipe out the class files when we load.
+						if(currentDirectoryFile.endsWith(".class")) {
+							new File(currentDirectoryFile).delete();
+						}
 					}
 				}
 				
@@ -275,7 +330,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 	private void doReservedUncatch() {
 			
 		// Try to gather out the exception.
-		Pattern parenPattern = Pattern.compile("uncatch[(](.*)[)];");
+		Pattern parenPattern = Pattern.compile("uncatch[(](.+)[)];");
 		Matcher matcher = parenPattern.matcher(this.rawInput);
 		
 		// Count the matches.
