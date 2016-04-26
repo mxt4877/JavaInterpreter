@@ -1,6 +1,7 @@
 package com.compiler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +29,35 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 	@Override
 	public void report(Diagnostic diagnostic) {
 		
+		// Put the error lines together.
+		List<String> errorLines = Arrays.asList(diagnostic.toString().replaceAll("\\/CompileClass.java:[0-9]+: ", "").replace("error:", "ERROR:").split("\n"));
+		
+		// The ultimate error message for this.
+		StringBuilder diagnosticError = new StringBuilder("A compiler error was encountered as a result of the input. See below for details.\n\n\t" + errorLines.get(0) + "\n");
+		
+		// If we need to exclude this line.
+		boolean excludeLine = false;
+		
+		// Add them in with a proper spacing.
+		for(String errorLine : errorLines.subList(1, errorLines.size())) {
+			
+			// Should we exclude this line?
+			if(excludeLine) {
+				excludeLine = false;
+				continue;
+			}
+			
+			// If we've got result returned, we need to exclude this line and the next.
+			if(errorLine.contains("Result returned: -->")) {
+				excludeLine = true;
+			}
+			
+			// Otherwise, we need to check to see if we make reference to the compile clas, we don't want that to show.
+			else if(!errorLine.contains("location: class CompileClass")) {
+				diagnosticError.append("\t\t" + errorLine + "\n");
+			}
+		}
+		
 		// Get the message.
 		String diagnosticMessage = diagnostic.getMessage(Locale.getDefault());
 		
@@ -41,7 +71,7 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 		}
 		
 		// Add in the error.
-		rawErrors.add(diagnostic.toString());
+		rawErrors.add(diagnosticError.toString());
 	}
 	
 	/**

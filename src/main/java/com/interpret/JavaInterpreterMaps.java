@@ -55,7 +55,7 @@ public class JavaInterpreterMaps {
 	/**
 	 * Map of imports.
 	 */
-	private Map<String, List<JavaAction>> imports = new LinkedHashMap<String, List<JavaAction>>();
+	private Map<String, JavaAction> imports = new LinkedHashMap<String, JavaAction>();
 	
 	/**
 	 * Map of exceptions.
@@ -71,7 +71,7 @@ public class JavaInterpreterMaps {
 	 * Private no-op constructor for singleton.
 	 */
 	private JavaInterpreterMaps() {
-		imports.put("IMPORTS", new LinkedList<JavaAction>());
+		;
 	}
 
 	/**
@@ -152,14 +152,7 @@ public class JavaInterpreterMaps {
 			// Get the import.
 			case IMPORT: {
 				
-				// Either GET the existing expressions, or CREATE a new list to hold them.
-				List<JavaAction> currentImports = imports.get("IMPORTS");
-								
-				// Add this one.
-				currentImports.add(javaAction);
-				
-				// Put it under the key of IMPORTS.
-				imports.put("IMPORTS", currentImports);
+				imports.put(javaAction.getName(), javaAction);
 				
 				break;
 			}
@@ -182,8 +175,8 @@ public class JavaInterpreterMaps {
 	/**
 	 * Method to get the imports.
 	 */
-	public List<JavaAction> getImports() {
-		return this.imports.get("IMPORTS");
+	public Collection<JavaAction> getImports() {
+		return this.imports.values();
 	}
 	
 	/**
@@ -289,6 +282,24 @@ public class JavaInterpreterMaps {
 		// Remove it if we have it.
 		if(exceptions.containsKey(exceptionName)) {
 			return exceptions.remove(exceptionName) != null;
+		}
+		
+		// Couldn't remove? Return false.
+		else {
+			return false;
+		}
+	}
+	
+	/**
+	 * Method to remove an exception.
+	 * 
+	 * @param importName -- the import.
+	 */
+	public boolean removeImport(String importName) {
+		
+		// Remove it if we have it.
+		if(imports.containsKey(importName)) {
+			return imports.remove(importName) != null;
 		}
 		
 		// Couldn't remove? Return false.

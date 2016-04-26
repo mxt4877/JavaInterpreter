@@ -119,6 +119,14 @@ public class JavaInterpreterCompiler {
 			// This time, just print the compile errors.
 			else {
 				diagListener.printErrors();
+				
+				// Sleep for half a second so the cursor doesn't come back before the error finishes printing.
+				try {
+					Thread.sleep(300);
+				}
+				
+				// Ignore this.
+				catch(InterruptedException e) {	; }
 			}
 			
 			return null;

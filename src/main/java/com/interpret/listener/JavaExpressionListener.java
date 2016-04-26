@@ -136,6 +136,11 @@ public class JavaExpressionListener extends Java8BaseListener {
 					doReservedUncatch();
 				}
 				
+				// Unimport?
+				else if(this.rawInput.startsWith(ReservedMethods.UNIMPORT.getMethodName())) {
+					doReservedUnimport();
+				}
+				
 				// Clear saves?
 				else if(this.rawInput.startsWith(ReservedMethods.CLEAR_SAVES.getMethodName())) {
 					doReservedClearSaves();
@@ -356,6 +361,41 @@ public class JavaExpressionListener extends Java8BaseListener {
 			
 			// Set up the java action.
 			this.javaAction = new JavaReservedMethod(ReservedMethods.UNCATCH, removedSuccessfully);
+		}
+	}
+	
+	/**
+	 * Method to do the unimport method from a reserved method name match.
+	 */
+	private void doReservedUnimport() {
+		
+		// Try to gather out the exception.
+		Pattern parenPattern = Pattern.compile("unimport[(](.+)[)];");
+		Matcher matcher = parenPattern.matcher(this.rawInput);
+		
+		// Count the matches.
+		int matchCount = 0;
+		
+		// If we matched, tally the total.
+		while(matcher.find()) {
+			matchCount++;
+		}
+		
+		// If we have one match, we match our method signature.
+		if(matchCount == 1) {
+			
+			// Redo this...
+			matcher = parenPattern.matcher(this.rawInput);
+			matcher.matches();
+			
+			// Get the exception and 'uncatch' it.
+			String importName = matcher.group(1);
+			
+			// Setup the unimport if we removed.
+			boolean removedSuccessfully = JavaInterpreterMaps.getInstance().removeImport(importName);
+			
+			// Set up the java action.
+			this.javaAction = new JavaReservedMethod(ReservedMethods.UNIMPORT, removedSuccessfully);
 		}
 	}
 	

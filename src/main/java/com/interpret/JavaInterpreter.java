@@ -43,9 +43,38 @@ public class JavaInterpreter {
 	private static final String END_PAREN = ")";
 	
 	/**
+	 * Constant for start bracket.
+	 */
+	private static final String START_BRACKET = "[";
+	
+	/**
+	 * Constant for end bracket.
+	 */
+	private static final String END_BRACKET = "]";
+	
+	/**
+	 * Constant for start angle bracket.
+	 */
+	private static final String START_ANGLE_BRACKET = "<";
+	
+	/**
+	 * Constant for end angle bracket.
+	 */
+	private static final String END_ANGLE_BRACKET = ">";
+	
+	/**
 	 * The list of matchable symbols.
 	 */
-	private static final List<String> SYMBOLS = new ArrayList<String>() {{ add(START_BRACE); add(END_BRACE); add(START_PAREN); add(END_PAREN); }};
+	private static final List<String> SYMBOLS = new ArrayList<String>() {{ 
+		add(START_BRACE);
+		add(END_BRACE);
+		add(START_PAREN);
+		add(END_PAREN);
+		add(START_BRACKET);
+		add(END_BRACKET);
+		add(START_ANGLE_BRACKET);
+		add(END_ANGLE_BRACKET);
+	}};
 	
 	/**
 	 * Main hookpoint for the interpreter.
@@ -77,8 +106,8 @@ public class JavaInterpreter {
         // Track the input.
         StringBuilder inputBuilder = new StringBuilder();
         
-        // Use a stack to track parens and braces.
-        Stack<String> parensAndBraces = new Stack<String>();
+        // Use a stack to track all symbols.
+        Stack<String> symbolStack = new Stack<String>();
         
         // Valid input?
         boolean validInput = true;
@@ -108,40 +137,80 @@ public class JavaInterpreter {
         				switch(thisChar) {
         				
 	        				case START_BRACE: {
-	        					parensAndBraces.push(START_BRACE);
+	        					symbolStack.push(START_BRACE);
 	        					break;
 	        				}
         				
 	        				case END_BRACE: {
 	        					
 	        					// If we have something other than an end brace, something is wrong.
-	        					if(parensAndBraces.isEmpty() || !START_BRACE.equals(parensAndBraces.peek())) {
+	        					if(symbolStack.isEmpty() || !START_BRACE.equals(symbolStack.peek())) {
 	        						validInput = false;
 	        					}
 	        					
 	        					// Otherwise we are good, pop the brace off.
 	        					else {
-		        					parensAndBraces.pop();
+		        					symbolStack.pop();
 	        					}
 	        					
 	        					break;
 	        				}
 	        				
 	        				case START_PAREN: {
-	        					parensAndBraces.push(START_PAREN);
+	        					symbolStack.push(START_PAREN);
 	        					break;
 	        				}
 	        				
 	        				case END_PAREN: {
 	        					
 	        					// If we have something other than an end brace, something is wrong.
-	        					if(parensAndBraces.isEmpty() || !START_PAREN.equals(parensAndBraces.peek())) {
+	        					if(symbolStack.isEmpty() || !START_PAREN.equals(symbolStack.peek())) {
 	        						validInput = false;
 	        					}
 	        					
 	        					// Otherwise we are good, pop the brace off.
 	        					else {
-		        					parensAndBraces.pop();
+		        					symbolStack.pop();
+	        					}
+	        					
+	        					break;
+	        				}
+	        				
+	        				case START_BRACKET: {
+	        					symbolStack.push(START_BRACKET);
+	        					break;
+	        				}
+	        				
+	        				case END_BRACKET: {
+	        					
+	        					// If we have something other than an end bracket, something is wrong.
+	        					if(symbolStack.isEmpty() || !START_BRACKET.equals(symbolStack.peek())) {
+	        						validInput = false;
+	        					}
+	        					
+	        					// Otherwise we are good, pop the bracket off.
+	        					else {
+		        					symbolStack.pop();
+	        					}
+	        					
+	        					break;
+	        				}
+	        				
+	        				case START_ANGLE_BRACKET: {
+	        					symbolStack.push(START_ANGLE_BRACKET);
+	        					break;
+	        				}
+	        				
+	        				case END_ANGLE_BRACKET: {
+	        					
+	        					// If we have something other than an end angle bracket, something is wrong.
+	        					if(symbolStack.isEmpty() || !START_ANGLE_BRACKET.equals(symbolStack.peek())) {
+	        						validInput = false;
+	        					}
+	        					
+	        					// Otherwise we are good, pop the angle bracket off.
+	        					else {
+		        					symbolStack.pop();
 	        					}
 	        					
 	        					break;
@@ -156,7 +225,7 @@ public class JavaInterpreter {
         		JavaAction newlyCreatedAction = null;
         		
         		// We might be in the middle of a statement. If we are, go do it again.
-        		if(!parensAndBraces.isEmpty()) {
+        		if(!symbolStack.isEmpty()) {
         			
         			// Keep going if we've got valid input. Otherwise, we need to let it die out.
         			if(validInput) {

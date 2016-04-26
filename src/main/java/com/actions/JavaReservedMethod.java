@@ -43,6 +43,11 @@ public class JavaReservedMethod extends JavaAction {
 		CLEAR_SAVES("clearSaves", "Saves could not be removed."),
 		
 		/**
+		 * The unimport method.
+		 */
+		UNIMPORT("unimport", "The import could not be unimported -- it may have already been unimported. This is not a failure, but an informational message."),
+		
+		/**
 		 * The exit method.
 		 */
 		EXIT("exit", "");

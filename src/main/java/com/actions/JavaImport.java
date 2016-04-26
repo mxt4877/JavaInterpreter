@@ -6,6 +6,11 @@ package com.actions;
  * @author <a href="mailto:mxt4877@rit.edu">Mike Thomsen</a>
  */
 public class JavaImport extends JavaAction {
+	
+	/**
+	 * The import name.
+	 */
+	private String importName;
 
 	/**
 	 * Constructor for imports.
@@ -14,6 +19,14 @@ public class JavaImport extends JavaAction {
 	 */
 	public JavaImport(String rawInput) {
 		super(rawInput, ActionType.IMPORT);
+		
+		// Get the import name.
+		this.importName = rawInput.substring(rawInput.indexOf("import") + 7).replace(";", "");
+	}
+	
+	@Override
+	public String getName() {
+		return this.importName;
 	}
 
 	@Override
