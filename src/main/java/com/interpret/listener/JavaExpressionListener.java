@@ -281,7 +281,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 				// This is the file index, we'll use to get the actual file.
 				int fileIndex = 0;
 				
-				System.out.println(fileIndex++ + " : " + "Just looking, don't load anything.");
+				System.out.println("-1 : " + "Just looking, don't load anything.");
 				
 				// List all the serialize possibilities.
 				for(File f : fullFileDirectory.listFiles()) {
@@ -296,7 +296,7 @@ public class JavaExpressionListener extends Java8BaseListener {
 				int selected = newScanner.nextInt();
 				
 				// The zero choice is just to look, don't do a thing.
-				if(selected > 0) {
+				if(selected > -1) {
 				
 					// Get the file name.
 					JavaInterpreterMaps.getInstance().loadByDeserialize(fullFileDirectory.listFiles()[selected].getName());
