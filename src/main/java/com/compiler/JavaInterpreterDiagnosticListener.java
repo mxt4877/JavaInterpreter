@@ -2,7 +2,6 @@ package com.compiler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,9 +21,9 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 	private List<KnownCompilerError> knownErrors = new ArrayList<KnownCompilerError>();
 	
 	/**
-	 * The list of raw errors.
+	 * The list of diagnostic messages.
 	 */
-	private List<String> rawErrors = new LinkedList<String>();
+	private StringBuilder diagnosticError = new StringBuilder("A compiler error was encountered as a result of the input. See below for details.\n\n\t");
 
 	@Override
 	public void report(Diagnostic diagnostic) {
@@ -33,7 +32,7 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 		List<String> errorLines = Arrays.asList(diagnostic.toString().replaceAll("\\/CompileClass.java:[0-9]+: ", "").replace("error:", "ERROR:").split("\n"));
 		
 		// The ultimate error message for this.
-		StringBuilder diagnosticError = new StringBuilder("A compiler error was encountered as a result of the input. See below for details.\n\n\t" + errorLines.get(0) + "\n");
+		diagnosticError.append(errorLines.get(0) + "\n");
 		
 		// If we need to exclude this line.
 		boolean excludeLine = false;
@@ -52,11 +51,14 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 				excludeLine = true;
 			}
 			
-			// Otherwise, we need to check to see if we make reference to the compile class, we don't want that to show.
+			// Otherwise, we need to check to see if we make reference to the compile clas, we don't want that to show.
 			else if(!errorLine.contains("location: class CompileClass")) {
-				diagnosticError.append("\t" + errorLine + "\n");
+				diagnosticError.append("\t\t" + errorLine + "\n");
 			}
 		}
+		
+		// Append a tab for the next error.
+		diagnosticError.append("\t");
 		
 		// Get the message.
 		String diagnosticMessage = diagnostic.getMessage(Locale.getDefault());
@@ -69,9 +71,6 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 				knownErrors.add(knownError);
 			}
 		}
-		
-		// Add in the error.
-		rawErrors.add(diagnostic.toString());
 	}
 	
 	/**
@@ -87,10 +86,6 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 	 * Method to print the errors we found.
 	 */
 	public void printErrors() {
-		
-		// Loop through and print each error.
-		for(String error : rawErrors) {
-			System.err.println(error);
-		}
+		System.err.println(diagnosticError.toString());
 	}
 }
