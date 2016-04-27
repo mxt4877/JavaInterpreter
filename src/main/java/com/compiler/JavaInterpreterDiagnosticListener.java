@@ -52,9 +52,9 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 				excludeLine = true;
 			}
 			
-			// Otherwise, we need to check to see if we make reference to the compile clas, we don't want that to show.
+			// Otherwise, we need to check to see if we make reference to the compile class, we don't want that to show.
 			else if(!errorLine.contains("location: class CompileClass")) {
-				diagnosticError.append("\t\t" + errorLine + "\n");
+				diagnosticError.append("\t" + errorLine + "\n");
 			}
 		}
 		
@@ -71,7 +71,7 @@ public class JavaInterpreterDiagnosticListener implements DiagnosticListener {
 		}
 		
 		// Add in the error.
-		rawErrors.add(diagnosticError.toString());
+		rawErrors.add(diagnostic.toString());
 	}
 	
 	/**
